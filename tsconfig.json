@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"experimentalDecorators": true,
+		"sourceMap": true,
+		"outDir": "dist",
+		"strict": true,
+		"lib": [
+			"esnext",
+			"ES2021.String"
+		],
+		"strictPropertyInitialization": false,
+		"esModuleInterop": true,
+	}
+}

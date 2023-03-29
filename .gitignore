@@ -1,0 +1,10 @@
+node_modules
+dist
+# Keep environment variables out of version control
+.env
+.env*
+  yarn.lock
+yarn.lock 
+yarn-error.log
+static/
+src/generated/
