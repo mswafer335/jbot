@@ -1,4 +1,7 @@
 import { TgBot } from "./bot/bot";
+import { connectDB } from "./middleware/db";
 
 const bot = new TgBot();
-bot.init();
+connectDB().then(async () => {
+    bot.init();
+});
