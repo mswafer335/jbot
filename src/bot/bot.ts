@@ -124,7 +124,7 @@ export class TgBot {
                     );
                     user.agreement = true;
                     await user.save();
-                    await addBalance(this.getSenderId(ctx), 1000);
+                    await addBalance(user.id, 1000);
                     return await ctx.reply(
                         `Привет. За регистрацию вам начислено $1000 на стейкинг. чтобы получить этот приз и поучаствовать в его розыгрыше - нужно выполнить задания.`,
                         markup
