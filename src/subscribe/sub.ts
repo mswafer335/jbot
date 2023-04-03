@@ -5,6 +5,10 @@
 // isSubscribeToTwitter: boolean;
 // isRetweetToTwitter: boolean;
 // isSubscribeToMedium: boolean;
+
+import { TelegrafContext } from "telegraf/typings/context";
+import { TG_CHANNEL, TG_CHANNEL_ID, TG_CHAT_ID } from "../const";
+
 // isSubscribeToYoutube: boolean;
 interface sub {
     isJoinToChannel: boolean;
@@ -16,19 +20,25 @@ interface sub {
 }
 const arrEmulateSubscribe = new Map<number, sub>();
 
-export const checkJoinToChannel = async (id: number): Promise<boolean> => {
-    if (arrEmulateSubscribe.has(id)) {
-        return arrEmulateSubscribe.get(id)!.isJoinToChannel;
+export const checkJoinToChannel = async (ctx: TelegrafContext, id: number): Promise<boolean> => {
+    try {
+        const res = await ctx.telegram.getChatMember(TG_CHANNEL_ID!, id);
+        console.log("res:", res);
+        return res.status !== "left";
+    } catch (e) {
+        console.log(e);
+        return false;
     }
-    //TODO add real api
-    return false;
 };
-export const checkJoinToChat = async (id: number) => {
-    if (arrEmulateSubscribe.has(id)) {
-        return arrEmulateSubscribe.get(id)!.isJoinToChat;
+export const checkJoinToChat = async (ctx: TelegrafContext, id: number) => {
+    try {
+        const res = await ctx.telegram.getChatMember(TG_CHAT_ID!, id);
+        console.log("res:", res);
+        return res.status !== "left";
+    } catch (e) {
+        console.log(e);
+        return false;
     }
-    //TODO add real api
-    return false;
 };
 export const checkSubscribeToTwitter = async (id: number): Promise<boolean> => {
     if (arrEmulateSubscribe.has(id)) {

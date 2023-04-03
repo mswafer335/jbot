@@ -19,18 +19,19 @@ import {
 
 import { TelegrafContext } from "telegraf/typings/context";
 import mongoose from "mongoose";
+import { BOT_TOKEN, TG_CHANNEL, TG_CHAT } from "../const";
 
 dotenv.config();
 if (!process.env.BOT_TOKEN) {
     console.error("Run: BOT_TOKEN not found");
     process.exit();
 }
-const token = process.env.BOT_TOKEN;
+
 const ObjectId = mongoose.Types.ObjectId;
 export class TgBot {
     bot: Telegraf<TelegrafContext>;
     constructor() {
-        this.bot = new Telegraf(token);
+        this.bot = new Telegraf(BOT_TOKEN!);
     }
     isActive(s: string, b: boolean): string {
         s += "\n";
@@ -70,11 +71,11 @@ export class TgBot {
                 //подписаться на ютуб
                 [
                     [
-                        m.urlButton(this.isActive("вступить в телеграм канал", user.isJoinToChannel), "https://t.me/"),
+                        m.urlButton(this.isActive("вступить в телеграм канал", user.isJoinToChannel), TG_CHANNEL!),
                         m.callbackButton(`проверить подписку`, `check_sub_to_channel`),
                     ],
                     [
-                        m.urlButton(this.isActive("вступить в телеграм чат", user.isJoinToChat), "https://t.me/"),
+                        m.urlButton(this.isActive("вступить в телеграм чат", user.isJoinToChat), TG_CHAT!),
                         m.callbackButton(`проверить подписку`, `check_sub_to_chat`),
                     ],
                     [
@@ -141,11 +142,11 @@ export class TgBot {
                 if (user.isJoinToChannel) {
                     return await ctx.reply("Вы уже подписаны на телеграм канал");
                 }
-                const checkApi = await checkJoinToChannel(this.getSenderId(ctx));
+                const checkApi = await checkJoinToChannel(ctx, this.getSenderId(ctx));
                 if (checkApi) {
                     user.isJoinToChannel = true;
                     await user.save();
-                    return await ctx.reply("Вы уже подписаны на телеграм канал");
+                    return await ctx.reply("Вы подписались на телеграм канал!");
                 }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
@@ -163,11 +164,11 @@ export class TgBot {
                 if (user.isJoinToChat) {
                     return await ctx.reply("Вы уже подписаны на телеграм чат");
                 }
-                const checkApi = await checkJoinToChat(this.getSenderId(ctx));
+                const checkApi = await checkJoinToChat(ctx, this.getSenderId(ctx));
                 if (checkApi) {
                     user.isJoinToChat = true;
                     await user.save();
-                    return await ctx.reply("Вы уже подписаны на телеграм чат");
+                    return await ctx.reply("Вы подписались телеграм чат!");
                 }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
@@ -258,6 +259,9 @@ export class TgBot {
                 );
                 return await ctx.reply(`вы еще не подписаны на ютуб`, markup);
             });
+            this.bot.command("id", async (ctx) => {
+                ctx.reply(`${ctx.chat?.id || `id не найден`}`);
+            });
             this.bot.command("e", async (ctx) => {
                 const user = await getOrCreateUser(this.getSenderId(ctx));
 
@@ -308,12 +312,21 @@ export class TgBot {
                 switchEmulateSubSubscribeToYoutube(this.getSenderId(ctx));
                 await ctx.reply(`Вступил в ютуб`);
             });
-            // this.bot.on(message("text"), async (ctx) => {
+            //listen post on channel
+            this.bot.on("channel_post", async (ctx) => {
+                //print post text
+                const text = (ctx.update.channel_post as any).text as string;
+                console.log("ctx.msg", (ctx?.update?.channel_post as any).text);
+                if (text == "/id") {
+                    return await ctx.reply(`${ctx.chat?.id || `id не найден`}`);
+                }
+            });
+            // this.bot.hears(/.*/, async (ctx) => {
             //     // // Explicit usage
             //     // await ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`);
-
+            //     console.log("ctx.msg", ctx.message?.text);
             //     // Using context shortcut
-            //     await ctx.reply(`Hello ${ctx.state.role}`);
+            //     await ctx.reply(`Hello `);
             // });
 
             this.bot.action("menu", async (ctx) => this.menu(ctx));
