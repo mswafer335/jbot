@@ -1,6 +1,8 @@
 import * as dotenv from "dotenv";
 dotenv.config({ path: "./.env", debug: true });
 //console.log(process.env);
+export const port = process.env.PORT;
+export const host = process.env.HOST;
 export const CLIENT_ID = process.env.CLIENT_ID;
 export const CLIENT_SECRET = process.env.CLIENT_SECRET;
 export const REDIRECT_URL = process.env.REDIRECT_URL;
@@ -15,6 +17,9 @@ export const TG_CHANNEL = process.env.TG_CHANNEL;
 //TG_CHAT_ID,TG_CHANNEL_ID
 export const TG_CHAT_ID = process.env.TG_CHAT_ID;
 export const TG_CHANNEL_ID = process.env.TG_CHANNEL_ID;
+export const MEDI_CHANNEL = process.env.MEDI_CHANNEL;
+export const TWITTER_CHANNEL = process.env.TWITTER_CHANNEL;
+export const YOUTUBE_CHANNEL = process.env.YOUTUBE_CHANNEL;
 // //func check all const exist and not empty. else error and os.exit
 // if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URL || !BOT_TOKEN || !ACCESS_TOKEN || !REFRESH_TOKEN) {
 //     console.error("Run: CLIENT_ID, CLIENT_SECRET, REDIRECT_URL, BOT_TOKEN, ACCESS_TOKEN, REFRESH_TOKEN not found");
