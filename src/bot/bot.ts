@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 
+import { BOT_TOKEN, SERVER_ADDRESS, TG_CHANNEL, TG_CHAT, port } from "../const";
 import { Extra, Markup, Telegraf } from "telegraf";
 import { addBalance, getOrCreateUser } from "../dbLayer/user.base.db";
 import {
@@ -17,9 +18,10 @@ import {
     switchEmulateSubSubscribeToYoutube,
 } from "../subscribe/sub";
 
+import Action from "../model/action";
 import { TelegrafContext } from "telegraf/typings/context";
+import { actions } from "..";
 import mongoose from "mongoose";
-import { BOT_TOKEN, TG_CHANNEL, TG_CHAT } from "../const";
 
 dotenv.config();
 if (!process.env.BOT_TOKEN) {
@@ -33,12 +35,18 @@ export class TgBot {
     constructor() {
         this.bot = new Telegraf(BOT_TOKEN!);
     }
+    async sendMessageToUserID(userId: number, text: string) {
+        await this.bot.telegram.sendMessage(userId, text);
+    }
     isActive(s: string, b: boolean): string {
         s += "\n";
         return b ? `✅ ${s}` : `❌ ${s}`;
     }
     getSenderId(ctx: TelegrafContext) {
-        return ctx.message?.from?.id || ctx.callbackQuery?.message?.from?.id || ctx.update.callback_query?.from?.id || ctx.update.message?.from?.id;
+        //  console.log("ctx. ", ctx);
+        const id = ctx.message?.from?.id || ctx.update.callback_query?.from?.id || ctx.update.message?.from?.id;
+        //   console.log("id:", id);
+        return id;
     }
     async actionRouter(ctx: TelegrafContext) {
         if (!ctx.chat?.id) {
@@ -79,19 +87,31 @@ export class TgBot {
                         m.callbackButton(`проверить подписку`, `check_sub_to_chat`),
                     ],
                     [
-                        m.urlButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), "https://t.me/"),
+                        m.urlButton(
+                            this.isActive("подписаться на твиттер", user.isSubscribeToTwitter),
+                            SERVER_ADDRESS + "/api/v1/twitter" + `?id=${user.id}`
+                        ),
                         m.callbackButton(`проверить подписку`, `check_sub_to_twitter`),
                     ],
                     [
-                        m.urlButton(this.isActive("сделать ретвит в твиттере", user.isRetweetToTwitter), "https://t.me/"),
+                        m.urlButton(
+                            this.isActive("сделать ретвит в твиттере", user.isRetweetToTwitter),
+                            SERVER_ADDRESS + "/api/v1/twitter" + `?id=${user.id}`
+                        ),
                         m.callbackButton(`проверить подписку`, `check_ret_to_twitter`),
                     ],
                     [
-                        m.urlButton(this.isActive("подписаться на медиум", user.isSubscribeToMedium), "https://t.me/"),
+                        m.urlButton(
+                            this.isActive("подписаться на медиум", user.isSubscribeToMedium),
+                            SERVER_ADDRESS + "/api/v1/medium" + `?id=${user.id}`
+                        ),
                         m.callbackButton(`проверить подписку`, `check_sub_to_medium`),
                     ],
                     [
-                        m.urlButton(this.isActive("подписаться на ютуб", user.isSubscribeToYoutube), "https://t.me/"),
+                        m.urlButton(
+                            this.isActive("подписаться на ютуб", user.isSubscribeToYoutube),
+                            SERVER_ADDRESS + "/api/v1/youtube" + `?id=${user.id}`
+                        ),
                         m.callbackButton(`проверить подписку`, `check_sub_to_youtube`),
                     ],
                 ],
@@ -114,7 +134,10 @@ export class TgBot {
             });
 
             this.bot.command("start", async (ctx) => {
-                const user = await getOrCreateUser(this.getSenderId(ctx));
+                //console.log(ctx!.chat!.id);
+                const sender = this.getSenderId(ctx);
+                //console.log({ sender });
+                const user = await getOrCreateUser(sender);
                 if (!user.agreement) {
                     const markup = Extra.HTML().markup((m) =>
                         m.inlineKeyboard(
@@ -138,12 +161,28 @@ export class TgBot {
             this.bot.command("subscribe", async (ctx) => this.subscribe(ctx));
             //generate handlers action for check_sub
             this.bot.action("check_sub_to_channel", async (ctx) => {
+                const findAction = await Action.findOne({ id: this.getSenderId(ctx), action: actions.tg_channel });
+
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isJoinToChannel) {
+                    if (!findAction) {
+                        const action = new Action({
+                            id: this.getSenderId(ctx),
+                            action: actions.tg_channel,
+                        });
+                        await action.save();
+                    }
                     return await ctx.reply("Вы уже подписаны на телеграм канал");
                 }
                 const checkApi = await checkJoinToChannel(ctx, this.getSenderId(ctx));
                 if (checkApi) {
+                    if (!findAction) {
+                        const action = new Action({
+                            id: this.getSenderId(ctx),
+                            action: actions.tg_channel,
+                        });
+                        await action.save();
+                    }
                     user.isJoinToChannel = true;
                     await user.save();
                     return await ctx.reply("Вы подписались на телеграм канал!");
@@ -151,7 +190,7 @@ export class TgBot {
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
                         [
-                            m.urlButton(this.isActive("вступить в телеграм канал", user.isJoinToChannel), "https://t.me/"),
+                            m.urlButton(this.isActive("вступить в телеграм канал", user.isJoinToChannel), TG_CHANNEL!),
                             m.callbackButton(`проверить подписку`, `check_sub_to_channel`),
                         ],
                         {}
@@ -160,12 +199,27 @@ export class TgBot {
                 return await ctx.reply(`вы еще не подписаны на телеграм канал`, markup);
             });
             this.bot.action("check_sub_to_chat", async (ctx) => {
+                const findAction = await Action.findOne({ id: this.getSenderId(ctx), action: actions.tg_chat });
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isJoinToChat) {
+                    if (!findAction) {
+                        const action = new Action({
+                            id: this.getSenderId(ctx),
+                            action: actions.tg_chat,
+                        });
+                        await action.save();
+                    }
                     return await ctx.reply("Вы уже подписаны на телеграм чат");
                 }
                 const checkApi = await checkJoinToChat(ctx, this.getSenderId(ctx));
                 if (checkApi) {
+                    if (!findAction) {
+                        const action = new Action({
+                            id: this.getSenderId(ctx),
+                            action: actions.tg_chat,
+                        });
+                        await action.save();
+                    }
                     user.isJoinToChat = true;
                     await user.save();
                     return await ctx.reply("Вы подписались телеграм чат!");
@@ -173,7 +227,7 @@ export class TgBot {
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
                         [
-                            m.urlButton(this.isActive("вступить в телеграм чат", user.isJoinToChat), "https://t.me/"),
+                            m.urlButton(this.isActive("вступить в телеграм чат", user.isJoinToChat), TG_CHAT!),
                             m.callbackButton(`проверить подписку`, `check_sub_to_chat`),
                         ],
                         {}
@@ -182,21 +236,46 @@ export class TgBot {
                 return await ctx.reply(`вы еще не подписаны на телеграм чат`, markup);
             });
             this.bot.action("check_sub_to_twitter", async (ctx) => {
+                const findAction = await Action.findOne({ id: this.getSenderId(ctx), action: actions.twitter_channel });
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isSubscribeToTwitter) {
+                    if (!findAction) {
+                        const action = new Action({
+                            id: this.getSenderId(ctx),
+                            action: actions.tg_chat,
+                        });
+                        await action.save();
+                    }
                     return await ctx.reply("Вы уже подписаны на твиттер");
                 }
                 const checkApi = await checkSubscribeToTwitter(this.getSenderId(ctx));
                 if (checkApi) {
+                    if (!findAction) {
+                        const action = new Action({
+                            id: this.getSenderId(ctx),
+                            action: actions.tg_chat,
+                        });
+                        await action.save();
+                    }
                     user.isSubscribeToTwitter = true;
                     await user.save();
                     return await ctx.reply("Вы уже подписаны на твиттер");
                 }
+                const markup = Extra.HTML().markup((m) =>
+                    m.inlineKeyboard([
+                        m.urlButton(
+                            this.isActive("подписаться на  твиттер", user.isSubscribeToTwitter),
+                            SERVER_ADDRESS + "/api/v1/twitter" + `?id=${user.id}`
+                        ),
+                        m.callbackButton(`проверить подписку`, `check_sub_to_twitter`),
+                    ])
+                );
+                return await ctx.reply(`вы еще не подписаны на твиттер`, markup);
             });
             this.bot.action("check_ret_to_twitter", async (ctx) => {
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isRetweetToTwitter) {
-                    return await ctx.reply("Вы уже подписаны на твиттер");
+                    return await ctx.reply("Вы уже ретвитнули");
                 }
                 const checkApi = await checkRetweetToTwitter(this.getSenderId(ctx));
                 if (checkApi) {
@@ -229,7 +308,7 @@ export class TgBot {
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
                         [
-                            m.urlButton(this.isActive("сделать ретвит в медиум", user.isSubscribeToMedium), "https://t.me/"),
+                            m.urlButton(this.isActive("подписаться на медиум", user.isSubscribeToMedium), "https://t.me/"),
                             m.callbackButton(`проверить подписку`, `check_sub_to_medium`),
                         ],
                         {}
@@ -316,7 +395,7 @@ export class TgBot {
             this.bot.on("channel_post", async (ctx) => {
                 //print post text
                 const text = (ctx.update.channel_post as any).text as string;
-                console.log("ctx.msg", (ctx?.update?.channel_post as any).text);
+                // console.log("ctx.msg", (ctx?.update?.channel_post as any).text);
                 if (text == "/id") {
                     return await ctx.reply(`${ctx.chat?.id || `id не найден`}`);
                 }

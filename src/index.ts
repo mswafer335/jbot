@@ -1,6 +1,6 @@
 import * as bodyParser from "body-parser";
 
-import { MEDI_CHANNEL, TWITTER_CHANNEL, YOUTUBE_CHANNEL, host, port } from "./const";
+import { MEDI_CHANNEL, SERVER_ADDRESS, TWITTER_CHANNEL, YOUTUBE_CHANNEL, port } from "./const";
 import express, { NextFunction, Request, Response } from "express";
 import { getAccessToken, getSubscribers } from "./api/youtube/yt";
 
@@ -76,6 +76,7 @@ app.get("/api/v1/medium", validationAndParseMiddleware(idDto), async (req: Reque
     User.findOne({ id: req.body.id }).then((user) => {
         user!.isSubscribeToMedium = true;
         user!.save();
+        bot.sendMessageToUserID(req.body.id, "Вы подписались на Medium!");
     });
 });
 app.get("/api/v1/twitter", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
@@ -93,6 +94,7 @@ app.get("/api/v1/twitter", validationAndParseMiddleware(idDto), async (req: Requ
     User.findOne({ id: req.body.id }).then((user) => {
         user!.isSubscribeToTwitter = true;
         user!.save();
+        bot.sendMessageToUserID(req.body.id, "Вы подписались на Twitter!");
     });
 });
 app.get("/api/v1/youtube", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
@@ -110,6 +112,7 @@ app.get("/api/v1/youtube", validationAndParseMiddleware(idDto), async (req: Requ
     User.findOne({ id: req.body.id }).then((user) => {
         user!.isSubscribeToYoutube = true;
         user!.save();
+        bot.sendMessageToUserID(req.body.id, "Вы подписались на YouTube!");
     });
 });
 app.get("/api/v1/status", (req: Request, res: Response, next: NextFunction) => {
@@ -121,7 +124,7 @@ app.use(function (err: { status: any }, req: any, res: any, next: any) {
     res.end();
 });
 app.listen(port, () => {
-    console.log(`[server]: Server is running at ${host}:${port}`);
+    console.log(`[server]: Server is running at ${SERVER_ADDRESS}`);
 });
 // // Вызываем функцию для получения access token и списка подписчиков
 // async function main() {

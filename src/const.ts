@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: "./.env", debug: true });
 //console.log(process.env);
 export const port = process.env.PORT;
-export const host = process.env.HOST;
+export const SERVER_ADDRESS = process.env.SERVER_ADDRESS;
 export const CLIENT_ID = process.env.CLIENT_ID;
 export const CLIENT_SECRET = process.env.CLIENT_SECRET;
 export const REDIRECT_URL = process.env.REDIRECT_URL;
