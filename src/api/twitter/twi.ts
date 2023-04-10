@@ -13,24 +13,24 @@ export class TwitterApi {
             app_only_auth: true,
         });
     }
-    async verifyCredentials() {
-        // Twit has promise support; you can use the callback API,
-        // promise API, or both at the same time.
-        //
-        this.T.get("account/verify_credentials", { skip_status: true })
-            .catch(function (err) {
-                console.log("caught error", err.stack);
-            })
-            .then(function (result) {
-                // `result` is an Object with keys "data" and "resp".
-                // `data` and `resp` are the same objects as the ones passed
-                // to the callback.
-                // See https://github.com/ttezel/twit#tgetpath-params-callback
-                // for details.
+    // async verifyCredentials() {
+    //     // Twit has promise support; you can use the callback API,
+    //     // promise API, or both at the same time.
+    //     //
+    //     this.T.get("account/verify_credentials", { skip_status: true })
+    //         .catch(function (err) {
+    //             console.log("caught error", err.stack);
+    //         })
+    //         .then(function (result) {
+    //             // `result` is an Object with keys "data" and "resp".
+    //             // `data` and `resp` are the same objects as the ones passed
+    //             // to the callback.
+    //             // See https://github.com/ttezel/twit#tgetpath-params-callback
+    //             // for details.
 
-                console.log("data", result?.data);
-            });
-    }
+    //             console.log("data", result?.data);
+    //         });
+    // }
     // Получение списка подписчиков
     async getFollowers(user: string) {
         try {

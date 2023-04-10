@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Twitter API Example</title>
+    </head>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
+        integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    ></script>
+    <body>
+        <button id="authorizeButton">Authorize with Twitter</button>
+        <div id="followersList"></div>
+
+        <script>
+            // Twitter API keys
+            const consumerKey = "M23PiqXNobAyyAevxZLI3nC54";
+            const consumerSecret = "ei2hgBzmle96LOYlCHAjtPsl8qoFDaTC6DFBOeW5MtL6PehA5X";
+
+            // Twitter API endpoints
+            const requestTokenUrl = "https://api.twitter.com/oauth/request_token";
+            const authorizeUrl = "https://api.twitter.com/oauth/authorize";
+            const accessTokenUrl = "https://api.twitter.com/oauth/access_token";
+            const followersUrl = "https://api.twitter.com/1.1/followers/list.json";
+
+            // Twitter OAuth parameters
+            let oauthToken = null;
+            let oauthTokenSecret = null;
+
+            // Twitter API client
+            const client = {
+                async get(url) {
+                    const res = await fetch(url, {
+                        headers: {
+                            Authorization: this.getAuthorizationHeader("GET", url),
+                        },
+                    });
+                    return await res.json();
+                },
+
+                getAuthorizationHeader(method, url) {
+                    const nonce = generateNonce();
+                    const timestamp = Math.floor(Date.now() / 1000);
+                    const signature = generateSignature(method, url, nonce, timestamp);
+                    return generateOAuthHeader(nonce, timestamp, signature);
+                },
+            };
+
+            // Generate a random nonce
+            function generateNonce() {
+                return Math.random().toString(36).substring(2) + Date.now().toString(36);
+            }
+
+            // Generate a signature for the Twitter OAuth authentication
+            function generateSignature(method, url, nonce, timestamp) {
+                const oauthSignatureMethod = "HMAC-SHA1";
+                const oauthVersion = "1.0";
+
+                const parameters = {
+                    oauth_consumer_key: consumerKey,
+                    oauth_nonce: nonce,
+                    oauth_signature_method: oauthSignatureMethod,
+                    oauth_timestamp: timestamp,
+                    oauth_token: oauthToken,
+                    oauth_version: oauthVersion,
+                };
+
+                const sortedParams = Object.keys(parameters)
+                    .sort()
+                    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(parameters[key])}`)
+                    .join("&");
+                const signatureBaseString = `${method.toUpperCase()}&${encodeURIComponent(url)}&${encodeURIComponent(sortedParams)}`;
+
+                const signingKey = `${encodeURIComponent(consumerSecret)}&${encodeURIComponent(oauthTokenSecret || "")}`;
+                const signature = btoa(CryptoJS.HmacSHA1(signatureBaseString, signingKey).toString(CryptoJS.enc.Base64));
+
+                return signature;
+            }
+
+            // Generate the OAuth header for Twitter authentication
+            function generateOAuthHeader(nonce, timestamp, signature) {
+                const oauthSignatureMethod = "HMAC-SHA1";
+                const oauthVersion = "1.0";
+
+                const parameters = {
+                    oauth_consumer_key: consumerKey,
+                    oauth_nonce: nonce,
+                    oauth_signature: signature,
+                    oauth_signature_method: oauthSignatureMethod,
+                    oauth_timestamp: timestamp,
+                    oauth_token: oauthToken,
+                    oauth_version: oauthVersion,
+                };
+
+                const header = `OAuth ${Object.keys(parameters)
+                    .map((key) => `${encodeURIComponent(key)}="${encodeURIComponent(parameters[key])}"`)
+                    .join(", ")}`;
+
+                return header;
+            }
+
+            function authorizeWithTwitter() {
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", requestTokenUrl, true);
+                xhr.setRequestHeader(
+                    "Authorization",
+                    'OAuth oauth_callback="http%3A%2F%2Flocalhost%3A8000", oauth_consumer_key="' +
+                        consumerKey +
+                        '", oauth_nonce="' +
+                        generateNonce() +
+                        '", oauth_signature_method="HMAC-SHA1", oauth_timestamp="' +
+                        Math.floor(Date.now() / 1000) +
+                        '", oauth_version="1.0", oauth_signature="' +
+                        encodeURIComponent(generateSignature("POST", requestTokenUrl, "", "")) +
+                        '"'
+                );
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        const responseParams = xhr.responseText.split("&");
+                        const oauthToken = responseParams.find((param) => param.startsWith("oauth_token=")).split("=")[1];
+                        window.location.href = `${authorizeUrl}?oauth_token=${oauthToken}`;
+                    }
+                };
+                xhr.send();
+            }
+            // Get the OAuth token and token secret from the URL after authorization
+            function getOAuthTokenFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const oauthToken = urlParams.get("oauth_token");
+                const oauthVerifier = urlParams.get("oauth_verifier");
+                if (oauthToken && oauthVerifier) {
+                    getAccessToken(oauthToken, oauthVerifier);
+                }
+            }
+
+            // Get the access token and token secret
+            async function getAccessToken(oauthToken, oauthVerifier) {
+                const xhr = new XMLHttpRequest();
+
+                xhr.open("POST", accessTokenUrl, true);
+                xhr.setRequestHeader(
+                    "Authorization",
+                    `OAuth oauth_consumer_key="${consumerKey}", oauth_nonce="${generateNonce()}", oauth_signature_method="HMAC-SHA1", oauth_timestamp="${Math.floor(
+                        Date.now() / 1000
+                    )}", oauth_token="${oauthToken}", oauth_verifier="${oauthVerifier}", oauth_version="1.0", oauth_signature="${encodeURIComponent(
+                        generateSignature("POST", accessTokenUrl, "", "")
+                    )}"`
+                );
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        const responseParams = xhr.responseText.split("&");
+                        const oauthToken = responseParams.find((param) => param.startsWith("oauth_token=")).split("=")[1];
+                        const oauthTokenSecret = responseParams.find((param) => param.startsWith("oauth_token_secret=")).split("=")[1];
+                        getFollowers(oauthToken, oauthTokenSecret);
+                    }
+                };
+
+                xhr.send();
+            }
+
+            // Get the user's followers
+            async function getFollowers(oauthToken, oauthTokenSecret) {
+                oauthToken = oauthToken;
+                oauthTokenSecret = oauthTokenSecret;
+                const followers = await client.get(followersUrl);
+                const followersList = document.getElementById("followersList");
+                followersList.innerHTML = "";
+                followers.users.forEach((user) => {
+                    const li = document.createElement("li");
+                    const img = document.createElement("img");
+                    img.src = user.profile_image_url;
+                    li.appendChild(img);
+                    li.appendChild(document.createTextNode(user.name));
+                    followersList.appendChild(li);
+                });
+            }
+
+            // Event listener for authorize button
+            document.getElementById("authorizeButton").addEventListener("click", function () {
+                authorizeWithTwitter();
+            });
+
+            // Check for OAuth token in URL after authorization
+            getOAuthTokenFromUrl();
+        </script>
+    </body>
+</html>

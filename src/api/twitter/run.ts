@@ -4,7 +4,7 @@ import { TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET, TWITTER_CONSUMER_KEY
 async function runnerTwi() {
     console.log("Запуск программы");
     const twi = new TwitterApi(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET);
-    //const u = await twi.getFollowers(TWITTER_USER);
-    await twi.verifyCredentials();
+    await twi.getFollowers(TWITTER_USER);
+    //   await twi.verifyCredentials();
 }
 runnerTwi();
