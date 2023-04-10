@@ -57,3 +57,11 @@ if (!CHANNEL_ID) {
     console.error("Run: CHANNEL_ID not found");
     process.exit(1);
 }
+//twitter keys
+//CONSUMER_KEY,CONSUMER_SECRET,ACCESS_TOKEN,ACCESS_TOKEN_SECRET
+export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY!;
+export const TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET!;
+export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN!;
+export const TWITTER_ACCESS_TOKEN_SECRET = process.env.TWITTER_ACCESS_TOKEN_SECRET!;
+//TWITTER_USER
+export const TWITTER_USER = process.env.TWITTER_USER!;
