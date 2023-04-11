@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+
+    <body>
+        <div id="app">
+            <div>Твой ID: {{id}}</div>
+            <!--button login twitter-->
+            <button @click="login">Войти в Twitter</button>
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.5/axios.min.js"></script>
+    <script>
+        const app = new Vue({
+            el: "#app",
+            data: {
+                id: 0,
+            },
+            methods: {
+                getTokens: async function () {
+                    //get tokens from backend
+                    try {
+                        const result = await axios.get(`/`);
+                        if (result.data) {
+                            return result.data;
+                        }
+                    } catch (error) {
+                        console.error(`Metadata crawler [axiosMeta] [tokenId:${tokenId}]:: unable to parse - ${url} (${error})`);
+                    }
+                },
+                login: async function () {
+                    //get tokens from backend
+                    window.location.href = "https://twitter.com/login";
+                },
+            },
+            created: function () {
+                const currentUrl = window.location.pathname;
+                console.log(`Current URL => ${currentUrl}`);
+                const id = currentUrl.substring(currentUrl.lastIndexOf("/") + 1);
+                console.log(`ID => ${id}`);
+                this.id = id;
+            },
+        });
+    </script>
+</html>

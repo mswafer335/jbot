@@ -7,10 +7,12 @@ import { getAccessToken, getSubscribers } from "./api/youtube/yt";
 import Action from "./model/action";
 import { TgBot } from "./bot/bot";
 import User from "./model/user";
+import axios from "axios";
 import { connectDB } from "./middleware/db";
 import cors from "cors";
 import { idDto } from "./dto/id.dto";
 import { loggerMiddleware } from "./middleware/api";
+import path from "path";
 import useragent from "express-useragent";
 import { validationAndParseMiddleware } from "./middleware/validation";
 
@@ -116,6 +118,29 @@ app.get("/api/v1/youtube", validationAndParseMiddleware(idDto), async (req: Requ
     });
 });
 app.get("/api/v1/status", (req: Request, res: Response, next: NextFunction) => {
+    res.status(200).send({ status: "ok" });
+});
+
+async function axiosMeta(url: string, tokenId: string) {
+    try {
+        const result = await axios.get(url);
+        if (result.data) {
+            return result.data;
+        }
+    } catch (error) {
+        console.error(`Metadata crawler [axiosMeta] [tokenId:${tokenId}]:: unable to parse - ${url} (${error})`);
+    }
+
+    return null;
+}
+app.get("/api/v1/tokens", (req: Request, res: Response, next: NextFunction) => {
+    res.status(200).send({ status: "ok" });
+});
+app.get("/u/:id", (req: Request, res: Response, next: NextFunction) => {
+    const pt = path.join(__dirname + "/user.html");
+    res.sendFile(pt);
+});
+app.get("/", (req: Request, res: Response, next: NextFunction) => {
     res.status(200).send({ status: "ok" });
 });
 app.use(function (err: { status: any }, req: any, res: any, next: any) {
