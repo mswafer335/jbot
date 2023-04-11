@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+
+    <body>
+        <div id="app">
+            <!-- if id!=0 render id, else warning-->
+            <div v-if="id!=0">
+                <div>Твой ID: {{id}}</div>
+            </div>
+            <div v-else>
+                <div>Вы не привязаны. вернитесь к боту и пройдите по ссылке привязки твиттера</div>
+            </div>
+        </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.5/axios.min.js"></script>
+    <script>
+        const app = new Vue({
+            el: "#app",
+            data: {
+                id: 0,
+            },
+            methods: {
+                parseQuery: function (queryString) {
+                    const query = {};
+                    const pairs = (queryString[0] === "?" ? queryString.substr(1) : queryString).split("&");
+                    for (let i = 0; i < pairs.length; i++) {
+                        const pair = pairs[i].split("=");
+                        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || "");
+                    }
+                    return query;
+                },
+                getUrlParams: function () {
+                    const queryString = window.location.search;
+                    return this.parseQuery(queryString);
+                },
+                getAccessToken: async function (oauth_token, oauth_verifier) {
+                    //get tokens from backend
+                    try {
+                        const result = await axios.post(`/api/v1/access_tokens?oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}`);
+                        if (!result.data) {
+                            return alert("Не удалось получить токены");
+                        }
+
+                        // const tokens = result.data?.tokens;
+                        // if (!tokens) {
+                        //     return alert("Не удалось получить токены");
+                        // }
+                        return result.data;
+                    } catch (error) {
+                        console.error(`[getAccessToken] (${error})`);
+                    }
+                },
+                // getTokens: async function () {
+                //     //get tokens from backend
+                //     try {
+                //         const result = await axios.get(`/api/v1/tokens`);
+                //         if (!result.data) {
+                //             return alert("Не удалось получить токены");
+                //         }
+                //         const tokens = result.data?.tokens;
+                //         if (!tokens) {
+                //             return alert("Не удалось получить токены");
+                //         }
+                //         return tokens;
+                //     } catch (error) {
+                //         console.error(`[getTokens] (${error})`);
+                //     }
+                // },
+                // login: async function () {
+                //     //get tokens from backend
+                //     const tokens = await this.getTokens();
+                //     console.log(tokens);
+                //     //extract oauth_token, oauth_token_secret to const
+                //     const oauth_token = tokens.oauth_token;
+                //     const oauth_token_secret = tokens.oauth_token_secret;
+                //     //save id to localStorage
+                //     localStorage.id = this.id;
+                //     //redirect to twitter
+                //     window.location.href = `https://api.twitter.com/oauth/authorize?oauth_token=${oauth_token}&oauth_token_secret=${oauth_token_secret}&oauth_callback_confirmed=true`;
+                // },
+            },
+            created: async function () {
+                const currentUrl = window.location.pathname;
+                console.log(this.getUrlParams());
+
+                console.log(`Current URL => ${currentUrl}`);
+                console.log(`id => ${localStorage.id}`);
+                const id = parseInt(localStorage.id);
+                console.log(`loc id => ${id}`);
+                if (isNaN(id)) {
+                    console.log(`not nan => ${id}`);
+                    this.id = 0;
+                    return;
+                }
+                const params = this.getUrlParams();
+
+                if (!params.oauth_token || !params.oauth_verifier) {
+                    alert("Не удалось получить oauth токены");
+                    console.log(params);
+                    this.id = 0;
+                    return;
+                }
+                const access_token = await this.getAccessToken(params.oauth_token, params.oauth_verifier);
+                console.log("access_token", access_token);
+            },
+        });
+    </script>
+</html>

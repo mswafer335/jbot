@@ -1,6 +1,7 @@
 import * as bodyParser from "body-parser";
 
 import { MEDI_CHANNEL, SERVER_ADDRESS, TWITTER_CHANNEL, YOUTUBE_CHANNEL, port } from "./const";
+import { axiosRequestAccessToken, axiosRequestToken } from "./api/twitter/axiosApi";
 import express, { NextFunction, Request, Response } from "express";
 import { getAccessToken, getSubscribers } from "./api/youtube/yt";
 
@@ -121,27 +122,41 @@ app.get("/api/v1/status", (req: Request, res: Response, next: NextFunction) => {
     res.status(200).send({ status: "ok" });
 });
 
-async function axiosMeta(url: string, tokenId: string) {
-    try {
-        const result = await axios.get(url);
-        if (result.data) {
-            return result.data;
-        }
-    } catch (error) {
-        console.error(`Metadata crawler [axiosMeta] [tokenId:${tokenId}]:: unable to parse - ${url} (${error})`);
+app.post("/api/v1/request_tokens", async (req: Request, res: Response, next: NextFunction) => {
+    //get userid from query params
+    // const userid = parseInt(req.query.userid as string);
+    // if (isNaN(userid)) {
+    //     res.status(400).send({ status: "error", message: "userid is required, or userid broken" });
+    //     return;
+    // }
+    const tokens = await axiosRequestToken();
+    console.log(tokens);
+    res.status(200).send({ status: "ok", tokens: tokens });
+});
+app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: NextFunction) => {
+    //get userid from query params
+    // const userid = parseInt(req.query.userid as string);
+    // if (isNaN(userid)) {
+    //     res.status(400).send({ status: "error", message: "userid is required, or userid broken" });
+    //     return;
+    // }
+    const oauth_token = req.query.oauth_token as string;
+    const oauth_verifier = req.query.oauth_verifier as string;
+    if (!oauth_token || !oauth_verifier) {
+        res.status(400).send({ status: "error", message: "oauth_token or oauth_verifier is required" });
+        return;
     }
-
-    return null;
-}
-app.get("/api/v1/tokens", (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).send({ status: "ok" });
+    const tokens = await axiosRequestAccessToken(oauth_token, oauth_verifier);
+    console.log("axiosRequestAccessToken> tokens:", tokens);
+    res.status(200).send({ status: "ok", tokens: tokens });
 });
 app.get("/u/:id", (req: Request, res: Response, next: NextFunction) => {
     const pt = path.join(__dirname + "/user.html");
     res.sendFile(pt);
 });
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).send({ status: "ok" });
+    const pt = path.join(__dirname + "/index.html");
+    res.sendFile(pt);
 });
 app.use(function (err: { status: any }, req: any, res: any, next: any) {
     console.log({ err });

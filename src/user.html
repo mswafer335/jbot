@@ -26,17 +26,31 @@
                 getTokens: async function () {
                     //get tokens from backend
                     try {
-                        const result = await axios.get(`/`);
-                        if (result.data) {
-                            return result.data;
+                        const result = await axios.post(`/api/v1/request_tokens`);
+                        if (!result.data) {
+                            return alert("Не удалось получить токены");
                         }
+
+                        const tokens = result.data?.tokens;
+                        if (!tokens) {
+                            return alert("Не удалось получить токены");
+                        }
+                        return tokens;
                     } catch (error) {
-                        console.error(`Metadata crawler [axiosMeta] [tokenId:${tokenId}]:: unable to parse - ${url} (${error})`);
+                        console.error(`[getTokens] (${error})`);
                     }
                 },
                 login: async function () {
                     //get tokens from backend
-                    window.location.href = "https://twitter.com/login";
+                    const tokens = await this.getTokens();
+                    console.log(tokens);
+                    //extract oauth_token, oauth_token_secret to const
+                    const oauth_token = tokens.oauth_token;
+                    const oauth_token_secret = tokens.oauth_token_secret;
+                    //save id to localStorage
+                    localStorage.id = this.id;
+                    //redirect to twitter
+                    window.location.href = `https://api.twitter.com/oauth/authorize?oauth_token=${oauth_token}&oauth_token_secret=${oauth_token_secret}&oauth_callback_confirmed=true`;
                 },
             },
             created: function () {

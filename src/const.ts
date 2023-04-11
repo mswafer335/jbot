@@ -65,3 +65,4 @@ export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN!;
 export const TWITTER_ACCESS_TOKEN_SECRET = process.env.TWITTER_ACCESS_TOKEN_SECRET!;
 //TWITTER_USER
 export const TWITTER_USER = process.env.TWITTER_USER!;
+export const TWITTER_CALLBACK_URL = process.env.TWITTER_CALLBACK_URL!;
