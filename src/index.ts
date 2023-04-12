@@ -1,6 +1,6 @@
 import * as bodyParser from "body-parser";
 
-import { MEDI_CHANNEL, SERVER_ADDRESS, TWITTER_CHANNEL, YOUTUBE_CHANNEL, port } from "./const";
+import { MEDI_CHANNEL, MY_NAME, SERVER_ADDRESS, TWITTER_CHANNEL, TWITTER_CHANNEL_USERNAME, TWITTER_USER, YOUTUBE_CHANNEL, port } from "./const";
 import { axiosCheckSubcribe, axiosRequestAccessToken, axiosRequestToken } from "./api/twitter/axiosApi";
 import express, { NextFunction, Request, Response } from "express";
 import { getAccessToken, getSubscribers } from "./api/youtube/yt";
@@ -12,6 +12,7 @@ import axios from "axios";
 import { connectDB } from "./middleware/db";
 import cors from "cors";
 import { idDto } from "./dto/id.dto";
+import { isNull } from "lodash";
 import { loggerMiddleware } from "./middleware/api";
 import path from "path";
 import useragent from "express-useragent";
@@ -141,7 +142,11 @@ app.post("/api/v1/request_tokens", async (req: Request, res: Response, next: Nex
 app.get("/api/v1/twitter/check_subcribtions", async (req: Request, res: Response, next: NextFunction) => {
     const token = req.query.token as string;
     const token_secret = req.query.token_secret as string;
-    const check = await axiosCheckSubcribe(token, token_secret);
+    if (!token || !token_secret) {
+        res.status(400).send({ status: "error", message: "token or token_secret is required" });
+        return;
+    }
+    const check = await axiosCheckSubcribe(token, token_secret, MY_NAME, TWITTER_USER);
     console.log("check:", check);
     res.status(200).send({ status: "ok", check: check });
 });
@@ -159,12 +164,26 @@ app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: Next
         return;
     }
     const tokens: any = await axiosRequestAccessToken(oauth_token, oauth_verifier);
-    console.log("axiosRequestAccessToken> tokens:", tokens);
+    // console.log("axiosRequestAccessToken> tokens:", tokens);
+    if (!tokens) {
+        res.status(400).send({ status: "error", message: "access_token or access_token_secret is required" });
+        return;
+    }
 
+    const userName = tokens?.screen_name;
     //use twitter api for get subscriptions user
     // const userSubs = await axiosGetUserSubscriptions(tokens.oauth_token, tokens.oauth_token_secret);
     //console.log("axiosGetUserSubscriptions> userSubs:", userSubs);
-    res.status(200).send({ status: "ok" });
+
+    const isSub = await axiosCheckSubcribe(tokens.oauth_token, tokens.oauth_token_secret, userName, TWITTER_CHANNEL_USERNAME);
+    //  console.log("axiosCheckSubcribe> isSub:", isSub);
+    if (isNull(isSub)) {
+        //return error broken token
+        res.status(400).send({ status: "error", message: "api broken check sub" });
+        return;
+    }
+
+    res.status(200).send({ status: "ok", isSub: isSub || false, id: tokens.user_id, userName: userName });
 });
 app.get("/u/:id", (req: Request, res: Response, next: NextFunction) => {
     const pt = path.join(__dirname + "/user.html");

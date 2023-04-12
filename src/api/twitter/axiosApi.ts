@@ -2,6 +2,7 @@ import { MY_NAME, TWITTER_CALLBACK_URL, TWITTER_CHANNEL_USERNAME } from "../../c
 
 import { Oauth1Helper } from "./oauth";
 import axios from "axios";
+import { isNull } from "lodash";
 
 function parseQuery(queryString) {
     var query = {};
@@ -79,10 +80,10 @@ export async function axiosRequestToken() {
 
     return null;
 }
-export async function axiosCheckSubcribe(access_token, access_token_secret) {
+export async function axiosCheckSubcribe(access_token, access_token_secret, userName, targetName): Promise<boolean | null> {
     try {
         const request = {
-            url: `https://api.twitter.com/1.1/friendships/show.json?source_screen_name=${MY_NAME}&target_screen_name=${TWITTER_CHANNEL_USERNAME}`,
+            url: `https://api.twitter.com/1.1/friendships/show.json?source_screen_name=${userName}&target_screen_name=${targetName}`,
 
             method: "GET",
         };
@@ -94,12 +95,20 @@ export async function axiosCheckSubcribe(access_token, access_token_secret) {
         if (result.data) {
             if (result.data.error) {
                 console.log(result.data.error);
+                // return null;
+            }
+            console.log("axiosCheckSubcribe> result.data", result.data);
+            //  const parseQueryresult = parseQuery(result.data);
+            const sRaw = result.data?.relationship?.source?.following;
+            if (isNull(sRaw)) {
                 return null;
             }
-            //  const parseQueryresult = parseQuery(result.data);
-            return result.data;
+
+            return sRaw;
         }
     } catch (error) {
         console.error(`[axiosGetUserSubscriptions] (${error})`);
+        return null;
     }
+    return null;
 }

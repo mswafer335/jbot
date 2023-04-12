@@ -10,11 +10,15 @@
     <body>
         <div id="app">
             <!-- if id!=0 render id, else warning-->
-            <div v-if="id!=0">
-                <div>Твой ID: {{id}}</div>
-            </div>
+            <div v-if="status==`waiting`">Подождите....</div>
             <div v-else>
-                <div>Вы не привязаны. вернитесь к боту и пройдите по ссылке привязки твиттера</div>
+                <div v-if="isSub==true">
+                    <div>Вы успешно подписаны!</div>
+                    <div>Ваше имя: {{username}}</div>
+                </div>
+                <div v-else>
+                    <div>Вы не привязаны или не подписаны. вернитесь к боту и пройдите по ссылке привязки твиттера</div>
+                </div>
             </div>
         </div>
     </body>
@@ -25,6 +29,9 @@
             el: "#app",
             data: {
                 id: 0,
+                status: "waiting",
+                isSub: false,
+                username: "",
             },
             methods: {
                 parseQuery: function (queryString) {
@@ -109,6 +116,18 @@
                 }
                 const access_token = await this.getAccessToken(params.oauth_token, params.oauth_verifier);
                 console.log("access_token", access_token);
+                if (!access_token) {
+                    alert("Не удалось получить oauth токены");
+                    return;
+                }
+                const isSub = access_token.isSub;
+                if (isSub) {
+                    // alert("Вы подписаны");
+                    this.id = access_token.id;
+                    this.isSub = true;
+                    this.username = access_token.userName;
+                }
+                this.status = "complete";
             },
         });
     </script>
