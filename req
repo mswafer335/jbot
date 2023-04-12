@@ -1,0 +1,10 @@
+get info
+curl --request GET \
+ --url 'https://api.twitter.com/1.1/lists/subscriptions.json?oauth_token=1642796790654140416-5iAJ2QNAQmrcPYRTzJUqvRSUlJihgp&oauth_consumer_key=mD4DJrYMVlDbizej280XmrfqC' \
+ --cookie guest_id=v1%253A168121120268639566
+
+oauth token
+
+post https://api.twitter.com/oauth/request_token
+oauth1: consumer key,consumer secret
+query: oauth_callback=https://48f3-185-148-1-70.ngrok-free.app/

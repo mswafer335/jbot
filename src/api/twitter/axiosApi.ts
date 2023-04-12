@@ -1,5 +1,6 @@
+import { MY_NAME, TWITTER_CALLBACK_URL, TWITTER_CHANNEL_USERNAME } from "../../const";
+
 import { Oauth1Helper } from "./oauth";
-import { TWITTER_CALLBACK_URL } from "../../const";
 import axios from "axios";
 
 function parseQuery(queryString) {
@@ -77,4 +78,28 @@ export async function axiosRequestToken() {
     }
 
     return null;
+}
+export async function axiosCheckSubcribe(access_token, access_token_secret) {
+    try {
+        const request = {
+            url: `https://api.twitter.com/1.1/friendships/show.json?source_screen_name=${MY_NAME}&target_screen_name=${TWITTER_CHANNEL_USERNAME}`,
+
+            method: "GET",
+        };
+        const authHeader = Oauth1Helper.getAuthHeaderForAuthUserRequest(request, access_token, access_token_secret);
+        const headers = {
+            headers: authHeader,
+        };
+        const result = await axios.get(request.url, headers as any);
+        if (result.data) {
+            if (result.data.error) {
+                console.log(result.data.error);
+                return null;
+            }
+            //  const parseQueryresult = parseQuery(result.data);
+            return result.data;
+        }
+    } catch (error) {
+        console.error(`[axiosGetUserSubscriptions] (${error})`);
+    }
 }

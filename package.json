@@ -37,6 +37,7 @@
 		"lodash": "^4.17.21",
 		"mongoose": "^7.0.3",
 		"nodemon": "^2.0.22",
+		"oauth": "^0.9.12",
 		"oauth-1.0a": "^2.2.6",
 		"readline-sync": "^1.4.10",
 		"telegraf": "^3.40.0",

@@ -1,7 +1,7 @@
 import * as bodyParser from "body-parser";
 
 import { MEDI_CHANNEL, SERVER_ADDRESS, TWITTER_CHANNEL, YOUTUBE_CHANNEL, port } from "./const";
-import { axiosRequestAccessToken, axiosRequestToken } from "./api/twitter/axiosApi";
+import { axiosCheckSubcribe, axiosRequestAccessToken, axiosRequestToken } from "./api/twitter/axiosApi";
 import express, { NextFunction, Request, Response } from "express";
 import { getAccessToken, getSubscribers } from "./api/youtube/yt";
 
@@ -133,6 +133,18 @@ app.post("/api/v1/request_tokens", async (req: Request, res: Response, next: Nex
     console.log(tokens);
     res.status(200).send({ status: "ok", tokens: tokens });
 });
+
+// app.get("/api/v1/twitter/user_subcribtions", async (req: Request, res: Response, next: NextFunction) => {
+// 		const
+
+// })
+app.get("/api/v1/twitter/check_subcribtions", async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.query.token as string;
+    const token_secret = req.query.token_secret as string;
+    const check = await axiosCheckSubcribe(token, token_secret);
+    console.log("check:", check);
+    res.status(200).send({ status: "ok", check: check });
+});
 app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: NextFunction) => {
     //get userid from query params
     // const userid = parseInt(req.query.userid as string);
@@ -146,9 +158,13 @@ app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: Next
         res.status(400).send({ status: "error", message: "oauth_token or oauth_verifier is required" });
         return;
     }
-    const tokens = await axiosRequestAccessToken(oauth_token, oauth_verifier);
+    const tokens: any = await axiosRequestAccessToken(oauth_token, oauth_verifier);
     console.log("axiosRequestAccessToken> tokens:", tokens);
-    res.status(200).send({ status: "ok", tokens: tokens });
+
+    //use twitter api for get subscriptions user
+    // const userSubs = await axiosGetUserSubscriptions(tokens.oauth_token, tokens.oauth_token_secret);
+    //console.log("axiosGetUserSubscriptions> userSubs:", userSubs);
+    res.status(200).send({ status: "ok" });
 });
 app.get("/u/:id", (req: Request, res: Response, next: NextFunction) => {
     const pt = path.join(__dirname + "/user.html");
