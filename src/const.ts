@@ -60,13 +60,36 @@ if (!CHANNEL_ID) {
 //twitter keys
 //CONSUMER_KEY,CONSUMER_SECRET,ACCESS_TOKEN,ACCESS_TOKEN_SECRET
 export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY!;
+if (!TWITTER_CONSUMER_KEY) {
+    console.error("Run: TWITTER_CONSUMER_KEY not found");
+    process.exit(1);
+}
 export const TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET!;
-export const TWITTER_ACCESS_TOKEN = process.env.TWITTER_ACCESS_TOKEN!;
-export const TWITTER_ACCESS_TOKEN_SECRET = process.env.TWITTER_ACCESS_TOKEN_SECRET!;
-//TWITTER_USER
-export const TWITTER_USER = process.env.TWITTER_USER!;
+if (!TWITTER_CONSUMER_SECRET) {
+    console.error("Run: TWITTER_CONSUMER_SECRET not found");
+    process.exit(1);
+}
+
 export const TWITTER_CALLBACK_URL = process.env.TWITTER_CALLBACK_URL!;
+if (!TWITTER_CALLBACK_URL) {
+    console.error("Run: TWITTER_CALLBACK_URL not found");
+    process.exit(1);
+}
 //TWITTER_CHANNEL_USERNAME
 export const TWITTER_CHANNEL_USERNAME = process.env.TWITTER_CHANNEL_USERNAME!;
+if (!TWITTER_CHANNEL_USERNAME) {
+    console.error("Run: TWITTER_CHANNEL_USERNAME not found");
+    process.exit(1);
+}
 //MY_NAME
 export const MY_NAME = process.env.MY_NAME!;
+if (!MY_NAME) {
+    console.error("Run: MY_NAME not found");
+    process.exit(1);
+}
+//SECRET_FOR_ENCODE_TGID
+export const SECRET_FOR_ENCODE_TGID = process.env.SECRET_FOR_ENCODE_TGID!;
+if (!SECRET_FOR_ENCODE_TGID) {
+    console.error("Run: SECRET_FOR_ENCODE_TGID not found");
+    process.exit(1);
+}

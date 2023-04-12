@@ -1,6 +1,6 @@
 import * as bodyParser from "body-parser";
 
-import { MEDI_CHANNEL, MY_NAME, SERVER_ADDRESS, TWITTER_CHANNEL, TWITTER_CHANNEL_USERNAME, TWITTER_USER, YOUTUBE_CHANNEL, port } from "./const";
+import { MEDI_CHANNEL, MY_NAME, SERVER_ADDRESS, TWITTER_CHANNEL, TWITTER_CHANNEL_USERNAME, YOUTUBE_CHANNEL, port } from "./const";
 import { axiosCheckSubcribe, axiosRequestAccessToken, axiosRequestToken } from "./api/twitter/axiosApi";
 import express, { NextFunction, Request, Response } from "express";
 import { getAccessToken, getSubscribers } from "./api/youtube/yt";
@@ -11,6 +11,7 @@ import User from "./model/user";
 import axios from "axios";
 import { connectDB } from "./middleware/db";
 import cors from "cors";
+import { decodeTGID } from "./crypto/crypto";
 import { idDto } from "./dto/id.dto";
 import { isNull } from "lodash";
 import { loggerMiddleware } from "./middleware/api";
@@ -146,7 +147,7 @@ app.get("/api/v1/twitter/check_subcribtions", async (req: Request, res: Response
         res.status(400).send({ status: "error", message: "token or token_secret is required" });
         return;
     }
-    const check = await axiosCheckSubcribe(token, token_secret, MY_NAME, TWITTER_USER);
+    const check = await axiosCheckSubcribe(token, token_secret, MY_NAME, TWITTER_CHANNEL_USERNAME);
     console.log("check:", check);
     res.status(200).send({ status: "ok", check: check });
 });
@@ -159,8 +160,9 @@ app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: Next
     // }
     const oauth_token = req.query.oauth_token as string;
     const oauth_verifier = req.query.oauth_verifier as string;
-    if (!oauth_token || !oauth_verifier) {
-        res.status(400).send({ status: "error", message: "oauth_token or oauth_verifier is required" });
+    const tid = req.query.tid as string;
+    if (!oauth_token || !oauth_verifier || tid) {
+        res.status(400).send({ status: "error", message: "oauth_token or oauth_verifier or id is required" });
         return;
     }
     const tokens: any = await axiosRequestAccessToken(oauth_token, oauth_verifier);
@@ -185,7 +187,31 @@ app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: Next
 
     res.status(200).send({ status: "ok", isSub: isSub || false, id: tokens.user_id, userName: userName });
 });
-app.get("/u/:id", (req: Request, res: Response, next: NextFunction) => {
+app.get("/u/:id", async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id;
+    const tgid = decodeTGID(id);
+    //   console.log(tgid);
+    if (!tgid) {
+        res.status(400).send({ status: "error", message: "id is required" });
+        return;
+    }
+    const pID = parseInt(tgid);
+    if (isNaN(pID)) {
+        res.status(400).send({ status: "error", message: "id is required" });
+        return;
+    }
+    const user = await User.findOne({ id: pID });
+    //console.log(`id: ${pID}`, user);
+    if (!user) {
+        res.status(400).send({ status: "error", message: "user not found" });
+        return;
+    }
+
+    if (user.id !== pID) {
+        res.status(400).send({ status: "error", message: "user not found" });
+        return;
+    }
+    //console.log(user);
     const pt = path.join(__dirname + "/user.html");
     res.sendFile(pt);
 });

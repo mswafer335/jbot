@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 
-import { BOT_TOKEN, SERVER_ADDRESS, TG_CHANNEL, TG_CHAT, port } from "../const";
+import { BOT_TOKEN, SERVER_ADDRESS, TG_CHANNEL, TG_CHAT, TWITTER_CALLBACK_URL, TWITTER_CHANNEL, port } from "../const";
 import { Extra, Markup, Telegraf } from "telegraf";
 import { addBalance, getOrCreateUser } from "../dbLayer/user.base.db";
 import {
@@ -21,6 +21,7 @@ import {
 import Action from "../model/action";
 import { TelegrafContext } from "telegraf/typings/context";
 import { actions } from "..";
+import { encodeTGID } from "../crypto/crypto";
 import mongoose from "mongoose";
 
 dotenv.config();
@@ -69,6 +70,7 @@ export class TgBot {
     }
     async subscribe(ctx: TelegrafContext) {
         const user = await getOrCreateUser(this.getSenderId(ctx));
+        const sId = user.id.toString();
         const markup = Extra.HTML().markup((m) =>
             m.inlineKeyboard(
                 //вступить в телеграм канал
@@ -87,11 +89,8 @@ export class TgBot {
                         m.callbackButton(`проверить подписку`, `check_sub_to_chat`),
                     ],
                     [
-                        m.urlButton(
-                            this.isActive("подписаться на твиттер", user.isSubscribeToTwitter),
-                            SERVER_ADDRESS + "/api/v1/twitter" + `?id=${user.id}`
-                        ),
-                        m.callbackButton(`проверить подписку`, `check_sub_to_twitter`),
+                        m.urlButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), TWITTER_CHANNEL!),
+                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `u/${encodeTGID(sId)}`),
                     ],
                     [
                         m.urlButton(

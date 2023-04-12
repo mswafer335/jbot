@@ -50,7 +50,9 @@
                 getAccessToken: async function (oauth_token, oauth_verifier) {
                     //get tokens from backend
                     try {
-                        const result = await axios.post(`/api/v1/access_tokens?oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}`);
+                        const result = await axios.post(
+                            `/api/v1/access_tokens?oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}&tid=${localStorage.id}`
+                        );
                         if (!result.data) {
                             return alert("Не удалось получить токены");
                         }
