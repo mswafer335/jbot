@@ -1,6 +1,6 @@
 import * as bodyParser from "body-parser";
 
-import { MEDI_CHANNEL, MY_NAME, SERVER_ADDRESS, TWITTER_CHANNEL, TWITTER_CHANNEL_USERNAME, YOUTUBE_CHANNEL, port } from "./const";
+import { MEDI_CHANNEL, SERVER_ADDRESS, TWITTER_CHANNEL, TWITTER_CHANNEL_USERNAME, YOUTUBE_CHANNEL, port } from "./const";
 import { axiosCheckSubcribe, axiosRequestAccessToken, axiosRequestToken } from "./api/twitter/axiosApi";
 import express, { NextFunction, Request, Response } from "express";
 import { getAccessToken, getSubscribers } from "./api/youtube/yt";
@@ -132,7 +132,7 @@ app.post("/api/v1/request_tokens", async (req: Request, res: Response, next: Nex
     //     return;
     // }
     const tokens = await axiosRequestToken();
-    console.log(tokens);
+    //  console.log(tokens);
     res.status(200).send({ status: "ok", tokens: tokens });
 });
 
@@ -143,13 +143,17 @@ app.post("/api/v1/request_tokens", async (req: Request, res: Response, next: Nex
 app.get("/api/v1/twitter/check_subcribtions", async (req: Request, res: Response, next: NextFunction) => {
     const token = req.query.token as string;
     const token_secret = req.query.token_secret as string;
-    if (!token || !token_secret) {
-        res.status(400).send({ status: "error", message: "token or token_secret is required" });
+    const name = req.query.name as string;
+    if (!token || !token_secret || !name) {
+        res.status(400).send({ status: "error", message: "token or token_secret or name is required" });
         return;
     }
-    const check = await axiosCheckSubcribe(token, token_secret, MY_NAME, TWITTER_CHANNEL_USERNAME);
-    console.log("check:", check);
+    const check = await axiosCheckSubcribe(token, token_secret, name, TWITTER_CHANNEL_USERNAME);
+    //  console.log("check:", check);
     res.status(200).send({ status: "ok", check: check });
+});
+app.get("/api/v1/twitter/channel_address", async (req: Request, res: Response, next: NextFunction) => {
+    res.status(200).send({ status: "ok", link: TWITTER_CHANNEL });
 });
 app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: NextFunction) => {
     //get userid from query params
@@ -161,7 +165,7 @@ app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: Next
     const oauth_token = req.query.oauth_token as string;
     const oauth_verifier = req.query.oauth_verifier as string;
     const tid = req.query.tid as string;
-    if (!oauth_token || !oauth_verifier || tid) {
+    if (!oauth_token || !oauth_verifier || !tid) {
         res.status(400).send({ status: "error", message: "oauth_token or oauth_verifier or id is required" });
         return;
     }
@@ -185,7 +189,14 @@ app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: Next
         return;
     }
 
-    res.status(200).send({ status: "ok", isSub: isSub || false, id: tokens.user_id, userName: userName });
+    res.status(200).send({
+        status: "ok",
+        isSub: isSub,
+        id: tokens.user_id,
+        userName: userName,
+        oauth_token: tokens.oauth_token,
+        oauth_token_secret: tokens.oauth_token_secret,
+    });
 });
 app.get("/u/:id", async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;

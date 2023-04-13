@@ -1,4 +1,4 @@
-import { MY_NAME, TWITTER_CALLBACK_URL, TWITTER_CHANNEL_USERNAME } from "../../const";
+import { TWITTER_CALLBACK_URL, TWITTER_CHANNEL_USERNAME } from "../../const";
 
 import { Oauth1Helper } from "./oauth";
 import axios from "axios";

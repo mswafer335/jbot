@@ -11,13 +11,20 @@
         <div id="app">
             <!-- if id!=0 render id, else warning-->
             <div v-if="status==`waiting`">Подождите....</div>
-            <div v-else>
+            <div v-if="status==`noLink`">Вы не привязаны. вернитесь к боту и пройдите по ссылке привязки твиттера</div>
+            <div v-if="status==`complete`">
                 <div v-if="isSub==true">
                     <div>Вы успешно подписаны!</div>
                     <div>Ваше имя: {{username}}</div>
                 </div>
                 <div v-else>
-                    <div>Вы не привязаны или не подписаны. вернитесь к боту и пройдите по ссылке привязки твиттера</div>
+                    <div v-if="channel&&channel!==''">
+                        <div>Вы не подписаны. Подпишитесь и проверьте подписку еще раз.</div>
+
+                        <a :href="channel" target="_blank" rel="noreferrer noopener"> Подписаться </a>
+                        <button @click="checkSub">Проверить подписку</button>
+                    </div>
+                    <div v-else>Ошибка. не найден адрес twitter канала</div>
                 </div>
             </div>
         </div>
@@ -32,6 +39,7 @@
                 status: "waiting",
                 isSub: false,
                 username: "",
+                channel: "",
             },
             methods: {
                 parseQuery: function (queryString) {
@@ -47,6 +55,19 @@
                     const queryString = window.location.search;
                     return this.parseQuery(queryString);
                 },
+                getTwiChannel: async function () {
+                    try {
+                        const result = await axios.get(`/api/v1/twitter/channel_address`);
+                        if (!result.data) {
+                            return;
+                        }
+                        if (result.data.status == "ok" && result.data.link != "") {
+                            this.channel = result.data.link;
+                        }
+                    } catch (error) {
+                        console.error(`[getTwiChannel] (${error})`);
+                    }
+                },
                 getAccessToken: async function (oauth_token, oauth_verifier) {
                     //get tokens from backend
                     try {
@@ -54,7 +75,7 @@
                             `/api/v1/access_tokens?oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}&tid=${localStorage.id}`
                         );
                         if (!result.data) {
-                            return alert("Не удалось получить токены");
+                            return alert("Не удалось получить токены. Попробуйте вернуться к боту и повторить операцию еще раз");
                         }
 
                         // const tokens = result.data?.tokens;
@@ -64,6 +85,22 @@
                         return result.data;
                     } catch (error) {
                         console.error(`[getAccessToken] (${error})`);
+                    }
+                },
+                checkSub: async function () {
+                    try {
+                        const result = await axios.get(
+                            `/api/v1/twitter/check_subcribtions?token=${localStorage.oauth_token}&token_secret=${localStorage.oauth_token_secret}&name=${this.username}`
+                        );
+                        if (!result.data) {
+                            return alert("техническая ошибка");
+                            return;
+                        }
+                        if (result.data.status == "ok") {
+                            this.isSub = true;
+                        }
+                    } catch (error) {
+                        console.error(`[checkSub] (${error})`);
                     }
                 },
                 // getTokens: async function () {
@@ -98,7 +135,7 @@
             created: async function () {
                 const currentUrl = window.location.pathname;
                 console.log(this.getUrlParams());
-
+                await this.getTwiChannel();
                 console.log(`Current URL => ${currentUrl}`);
                 console.log(`id => ${localStorage.id}`);
                 const id = parseInt(localStorage.id);
@@ -111,7 +148,7 @@
                 const params = this.getUrlParams();
 
                 if (!params.oauth_token || !params.oauth_verifier) {
-                    alert("Не удалось получить oauth токены");
+                    alert("Не удалось получить oauth токены. Попробуйте вернуться к боту и повторить операцию еще раз");
                     console.log(params);
                     this.id = 0;
                     return;
@@ -119,15 +156,26 @@
                 const access_token = await this.getAccessToken(params.oauth_token, params.oauth_verifier);
                 console.log("access_token", access_token);
                 if (!access_token) {
-                    alert("Не удалось получить oauth токены");
+                    alert("Не удалось получить oauth токены. Попробуйте вернуться к боту и повторить операцию еще раз");
                     return;
                 }
+                //check if tokens.oauth_token, tokens.oauth_token_secret exist, save to localstorage and state
+                if (!access_token.oauth_token || !access_token.oauth_token_secret) {
+                    alert("Не удалось получить oauth токены. Попробуйте вернуться к боту и повторить операцию еще раз");
+                    return;
+                }
+                const oauth_token = access_token.oauth_token;
+                const oauth_token_secret = access_token.oauth_token_secret;
+                this.oauth_token = oauth_token;
+                this.oauth_token_secret = oauth_token_secret;
+                localStorage.oauth_token = oauth_token;
+                localStorage.oauth_token_secret = oauth_token_secret;
+                this.username = access_token.userName;
                 const isSub = access_token.isSub;
                 if (isSub) {
                     // alert("Вы подписаны");
                     this.id = access_token.id;
                     this.isSub = true;
-                    this.username = access_token.userName;
                 }
                 this.status = "complete";
             },
