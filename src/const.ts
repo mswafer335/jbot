@@ -81,12 +81,7 @@ if (!TWITTER_CHANNEL_USERNAME) {
     console.error("Run: TWITTER_CHANNEL_USERNAME not found");
     process.exit(1);
 }
-//MY_NAME
-export const MY_NAME = process.env.MY_NAME!;
-if (!MY_NAME) {
-    console.error("Run: MY_NAME not found");
-    process.exit(1);
-}
+
 //SECRET_FOR_ENCODE_TGID
 export const SECRET_FOR_ENCODE_TGID = process.env.SECRET_FOR_ENCODE_TGID!;
 if (!SECRET_FOR_ENCODE_TGID) {
