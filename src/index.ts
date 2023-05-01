@@ -78,9 +78,9 @@ app.get("/api/v1/medium", validationAndParseMiddleware(idDto), async (req: Reque
         action: actions.medium,
     });
     await action.save();
-    User.findOne({ id: req.body.id }).then((user) => {
+    User.findOne({ id: req.body.id }).then(async (user) => {
         user!.isSubscribeToMedium = true;
-        user!.save();
+        await user!.save();
         bot.sendMessageToUserID(req.body.id, "Вы подписались на Medium!");
     });
 });
