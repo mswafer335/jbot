@@ -36,8 +36,60 @@ export class TgBot {
     constructor() {
         this.bot = new Telegraf(BOT_TOKEN!);
     }
+    async getReplyKeyboard(userId) {
+        const user = await getOrCreateUser(userId);
+        const sId = user.id.toString();
+        const markup = Extra.HTML().markup((m) =>
+            m.inlineKeyboard(
+                //вступить в телеграм канал
+                //вступить в телеграм чат
+                //подписаться на твиттер
+                //сделать ретвит в твиттере
+                //подписаться на медиум
+                //подписаться на ютуб
+                [
+                    [
+                        m.urlButton(this.isActive("вступить в телеграм канал", user.isJoinToChannel), TG_CHANNEL!),
+                        m.callbackButton(`проверить подписку`, `check_sub_to_channel`),
+                    ],
+                    [
+                        m.urlButton(this.isActive("вступить в телеграм чат", user.isJoinToChat), TG_CHAT!),
+                        m.callbackButton(`проверить подписку`, `check_sub_to_chat`),
+                    ],
+                    [
+                        m.urlButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), TWITTER_CHANNEL!),
+                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `u/${encodeTGID(sId)}`),
+                    ],
+                    [
+                        m.urlButton(
+                            this.isActive("сделать ретвит в твиттере", user.isRetweetToTwitter),
+                            SERVER_ADDRESS + "/api/v1/twitter" + `?id=${user.id}`
+                        ),
+                        m.callbackButton(`проверить подписку`, `check_ret_to_twitter`),
+                    ],
+                    [
+                        m.urlButton(
+                            this.isActive("подписаться на медиум", user.isSubscribeToMedium),
+                            SERVER_ADDRESS + "/api/v1/medium" + `?id=${user.id}`
+                        ),
+                        m.callbackButton(`проверить подписку`, `check_sub_to_medium`),
+                    ],
+                    [
+                        m.urlButton(
+                            this.isActive("подписаться на ютуб", user.isSubscribeToYoutube),
+                            SERVER_ADDRESS + "/api/v1/youtube" + `?id=${user.id}`
+                        ),
+                        m.callbackButton(`проверить подписку`, `check_sub_to_youtube`),
+                    ],
+                ],
+
+                {}
+            )
+        );
+        return markup;
+    }
     async sendMessageToUserID(userId: number, text: string) {
-        await this.bot.telegram.sendMessage(userId, text);
+        await this.bot.telegram.sendMessage(userId, text, await this.getReplyKeyboard(userId));
     }
     isActive(s: string, b: boolean): string {
         s += "\n";
@@ -171,7 +223,7 @@ export class TgBot {
                         });
                         await action.save();
                     }
-                    return await ctx.reply("Вы уже подписаны на телеграм канал");
+                    return await ctx.reply("Вы уже подписаны на телеграм канал", await this.getReplyKeyboard(user.id));
                 }
                 const checkApi = await checkJoinToChannel(ctx, this.getSenderId(ctx));
                 if (checkApi) {
@@ -184,7 +236,7 @@ export class TgBot {
                     }
                     user.isJoinToChannel = true;
                     await user.save();
-                    return await ctx.reply("Вы подписались на телеграм канал!");
+                    return await ctx.reply("Вы подписались на телеграм канал!", await this.getReplyKeyboard(user.id));
                 }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
@@ -208,7 +260,7 @@ export class TgBot {
                         });
                         await action.save();
                     }
-                    return await ctx.reply("Вы уже подписаны на телеграм чат");
+                    return await ctx.reply("Вы уже подписаны на телеграм чат", await this.getReplyKeyboard(user.id));
                 }
                 const checkApi = await checkJoinToChat(ctx, this.getSenderId(ctx));
                 if (checkApi) {
@@ -221,7 +273,7 @@ export class TgBot {
                     }
                     user.isJoinToChat = true;
                     await user.save();
-                    return await ctx.reply("Вы подписались телеграм чат!");
+                    return await ctx.reply("Вы подписались телеграм чат!", await this.getReplyKeyboard(user.id));
                 }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
@@ -245,7 +297,7 @@ export class TgBot {
                         });
                         await action.save();
                     }
-                    return await ctx.reply("Вы уже подписаны на твиттер");
+                    return await ctx.reply("Вы уже подписаны на твиттер", await this.getReplyKeyboard(user.id));
                 }
                 const checkApi = await checkSubscribeToTwitter(this.getSenderId(ctx));
                 if (checkApi) {
@@ -258,7 +310,7 @@ export class TgBot {
                     }
                     user.isSubscribeToTwitter = true;
                     await user.save();
-                    return await ctx.reply("Вы уже подписаны на твиттер");
+                    return await ctx.reply("Вы уже подписаны на твиттер", await this.getReplyKeyboard(user.id));
                 }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard([
@@ -274,13 +326,13 @@ export class TgBot {
             this.bot.action("check_ret_to_twitter", async (ctx) => {
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isRetweetToTwitter) {
-                    return await ctx.reply("Вы уже ретвитнули");
+                    return await ctx.reply("Вы уже ретвитнули", await this.getReplyKeyboard(user.id));
                 }
                 const checkApi = await checkRetweetToTwitter(this.getSenderId(ctx));
                 if (checkApi) {
                     user.isRetweetToTwitter = true;
                     await user.save();
-                    return await ctx.reply("Вы уже подписаны на твиттер");
+                    return await ctx.reply("Вы уже подписаны на твиттер", await this.getReplyKeyboard(user.id));
                 }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
@@ -296,13 +348,13 @@ export class TgBot {
             this.bot.action("check_sub_to_medium", async (ctx) => {
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isSubscribeToMedium) {
-                    return await ctx.reply("Вы уже подписаны на медиум");
+                    return await ctx.reply("Вы уже подписаны на медиум", await this.getReplyKeyboard(user.id));
                 }
                 const checkApi = await checkSubscribeToMedium(this.getSenderId(ctx));
                 if (checkApi) {
                     user.isSubscribeToMedium = true;
                     await user.save();
-                    return await ctx.reply("Вы уже подписаны на медиум");
+                    return await ctx.reply("Вы уже подписаны на медиум", await this.getReplyKeyboard(user.id));
                 }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
@@ -318,13 +370,13 @@ export class TgBot {
             this.bot.action("check_sub_to_youtube", async (ctx) => {
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isSubscribeToYoutube) {
-                    return await ctx.reply("Вы уже подписаны на ютуб");
+                    return await ctx.reply("Вы уже подписаны на ютуб", await this.getReplyKeyboard(user.id));
                 }
                 const checkApi = await checkSubscribeToYoutube(this.getSenderId(ctx));
                 if (checkApi) {
                     user.isSubscribeToYoutube = true;
                     await user.save();
-                    return await ctx.reply("Вы уже подписаны на ютуб");
+                    return await ctx.reply("Вы уже подписаны на ютуб", await this.getReplyKeyboard(user.id));
                 }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
