@@ -329,7 +329,10 @@ export class TgBot {
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
                         [
-                            m.urlButton(this.isActive("сделать ретвит в ютуб", user.isSubscribeToYoutube), "https://t.me/"),
+                            m.urlButton(
+                                this.isActive("подписаться на ютуб", user.isSubscribeToYoutube),
+                                SERVER_ADDRESS + "/api/v1/youtube" + `?id=${user.id}`
+                            ),
                             m.callbackButton(`проверить подписку`, `check_sub_to_youtube`),
                         ],
                         {}
