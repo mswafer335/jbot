@@ -90,7 +90,7 @@
                 checkSub: async function () {
                     try {
                         const result = await axios.get(
-                            `/api/v1/twitter/check_subcribtions?token=${localStorage.oauth_token}&token_secret=${localStorage.oauth_token_secret}&name=${this.username}`
+                            `/api/v1/twitter/check_subcribtions?token=${localStorage.oauth_token}&token_secret=${localStorage.oauth_token_secret}&name=${this.username}&tid=${localStorage.id}`
                         );
                         if (!result.data) {
                             return alert("техническая ошибка");

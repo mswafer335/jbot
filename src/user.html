@@ -9,9 +9,10 @@
 
     <body>
         <div id="app">
-            <div>Твой ID: {{id}}</div>
-            <!--button login twitter-->
-            <button @click="login">Войти в Twitter</button>
+            Подождите...
+            <!-- <div>Твой ID: {{id}}</div> -->
+            <!-- button login twitter
+            <button @click="login">Войти в Twitter</button> -->
         </div>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
@@ -59,6 +60,7 @@
                 const id = currentUrl.substring(currentUrl.lastIndexOf("/") + 1);
                 console.log(`ID => ${id}`);
                 this.id = id;
+                this.login();
             },
         });
     </script>

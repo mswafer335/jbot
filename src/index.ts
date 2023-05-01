@@ -144,17 +144,40 @@ app.get("/api/v1/twitter/check_subcribtions", async (req: Request, res: Response
     const token = req.query.token as string;
     const token_secret = req.query.token_secret as string;
     const name = req.query.name as string;
-    if (!token || !token_secret || !name) {
-        res.status(400).send({ status: "error", message: "token or token_secret or name is required" });
+    const tid = req.query.tid as string;
+    if (!token || !token_secret || !name || !tid) {
+        res.status(400).send({ status: "error", message: "token or token_secret or name or tid is required" });
         return;
     }
     const check = await axiosCheckSubcribe(token, token_secret, name, TWITTER_CHANNEL_USERNAME);
     //  console.log("check:", check);
+    const tgid = decodeTGID(tid);
+    await alarmTwitter(parseInt(tgid));
     res.status(200).send({ status: "ok", check: check });
 });
 app.get("/api/v1/twitter/channel_address", async (req: Request, res: Response, next: NextFunction) => {
     res.status(200).send({ status: "ok", link: TWITTER_CHANNEL });
 });
+async function alarmTwitter(tgid: number) {
+    const user = await User.findOne({ id: tgid });
+    if (!user) {
+        return;
+    }
+    const findAction = await Action.findOne({ id: tgid, action: actions.twitter_channel });
+    if (findAction) {
+        return;
+    }
+    const action = new Action({
+        id: tgid,
+        action: actions.twitter_channel,
+    });
+    await action.save();
+    User.findOne({ id: tgid }).then((user) => {
+        user!.isSubscribeToTwitter = true;
+        user!.save();
+        bot.sendMessageToUserID(tgid, "Вы подписались на Twitter!");
+    });
+}
 app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: NextFunction) => {
     //get userid from query params
     // const userid = parseInt(req.query.userid as string);
@@ -188,7 +211,10 @@ app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: Next
         res.status(400).send({ status: "error", message: "api broken check sub" });
         return;
     }
-
+    if (isSub) {
+        const tgid = decodeTGID(tid);
+        await alarmTwitter(parseInt(tgid));
+    }
     res.status(200).send({
         status: "ok",
         isSub: isSub,
@@ -221,6 +247,10 @@ app.get("/u/:id", async (req: Request, res: Response, next: NextFunction) => {
     if (user.id !== pID) {
         res.status(400).send({ status: "error", message: "user not found" });
         return;
+    }
+
+    if (user.isSubscribeToTwitter == true) {
+        return res.status(200).send("Вы уже подписались на Twitter!");
     }
     //console.log(user);
     const pt = path.join(__dirname + "/user.html");
