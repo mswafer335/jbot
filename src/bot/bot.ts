@@ -202,7 +202,7 @@ export class TgBot {
                 const sender = this.getSenderId(ctx);
                 //console.log({ sender });
                 const user = await getOrCreateUser(sender);
-                user.lastAction = Date.now() / 1000 + 60; // * 60 * 24;
+                user.lastAction = Date.now() / 1000 + 60 * 60 * 24;
                 user.actionStatus = true;
                 await user.save();
                 return next();
