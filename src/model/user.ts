@@ -16,11 +16,22 @@ export interface IUser extends Document {
     isSubscribeToMedium: boolean;
     isSubscribeToYoutube: boolean;
     agreement: boolean;
+    lastAction: number;
+    actionStatus: boolean;
 }
 
 const UserSchema = new Schema({
     id: {
         type: Number,
+    },
+
+    lastAction: {
+        type: Number,
+        default: 0,
+    },
+    actionStatus: {
+        type: Boolean,
+        default: false,
     },
     agreement: {
         type: Boolean,
@@ -55,6 +66,6 @@ const UserSchema = new Schema({
         default: false,
     },
 });
-
 const User = model<IUser>("user", UserSchema);
+
 export default User;

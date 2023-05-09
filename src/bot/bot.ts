@@ -19,7 +19,9 @@ import {
 } from "../subscribe/sub";
 
 import Action from "../model/action";
+import { CronJob } from "cron";
 import { TelegrafContext } from "telegraf/typings/context";
+import User from "../model/user";
 import { actions } from "..";
 import { encodeTGID } from "../crypto/crypto";
 import mongoose from "mongoose";
@@ -35,6 +37,24 @@ export class TgBot {
     bot: Telegraf<TelegrafContext>;
     constructor() {
         this.bot = new Telegraf(BOT_TOKEN!);
+    }
+    async cron() {
+        const runner = new CronJob("*/1 * * * *", async () => {
+            //every minute
+            //   console.log("cron");
+            const usersForNotify = await User.find({
+                actionStatus: true,
+                lastAction: { $lte: Date.now() / 1000 },
+            });
+            //find users and update
+
+            for (const user of usersForNotify) {
+                await this.bot.telegram.sendMessage(user.id, `Бонус!`);
+                user.actionStatus = false;
+                await user.save();
+            }
+        });
+        runner.start();
     }
     async getReplyKeyboard(userId) {
         const user = await getOrCreateUser(userId);
@@ -176,6 +196,17 @@ export class TgBot {
     //async
     async init() {
         try {
+            this.cron();
+            this.bot.use(async (ctx, next) => {
+                //   console.log("ctx: ", ctx);
+                const sender = this.getSenderId(ctx);
+                //console.log({ sender });
+                const user = await getOrCreateUser(sender);
+                user.lastAction = Date.now() / 1000 + 60; // * 60 * 24;
+                user.actionStatus = true;
+                await user.save();
+                return next();
+            });
             this.bot.command("quit", async (ctx) => {
                 // Explicit usage
                 await ctx.telegram.leaveChat(this.getSenderId(ctx));
