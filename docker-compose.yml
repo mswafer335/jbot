@@ -38,7 +38,7 @@ services:
             - SECRET_FOR_ENCODE_TGID=${SECRET_FOR_ENCODE_TGID}
             - DATABASE_URL=mongodb://mongo:27017/JBOT
         ports:
-            - "5000:5000"
+            - "14035:14035"
         depends_on:
             - mongo
     mongo:

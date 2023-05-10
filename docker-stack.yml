@@ -6,7 +6,7 @@ services:
             - default
             - web
         ports:
-            - "14036:14035"
+            - "14042:14035"
         volumes:
             - static:/app/static
         deploy:
@@ -34,7 +34,7 @@ services:
             - MEDI_API=${MEDI_API}
             - MEDI_X_RAPID_KEY=${MEDI_X_RAPID_KEY}
             - SERVER_ADDRESS=${SERVER_ADDRESS}
-            - PORT=${PORT}
+            - PORT=${PORT:14035}
             - MEDI_CHANNEL=${MEDI_CHANNEL}
             - TG_CHAT=${TG_CHAT}
             - TG_CHANNEL=${TG_CHANNEL}
