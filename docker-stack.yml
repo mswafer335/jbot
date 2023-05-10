@@ -4,7 +4,7 @@ services:
         image: registry.bykollab.com/jetbot/bot:latest
         networks:
             - default
-            # - web
+            - web
         ports:
             - "14042:14035"
         # volumes:
@@ -63,3 +63,5 @@ volumes:
 networks:
     default:
         name: jetbot
+    web:
+        external: true
