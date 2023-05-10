@@ -34,7 +34,7 @@ services:
             - MEDI_API=${MEDI_API}
             - MEDI_X_RAPID_KEY=${MEDI_X_RAPID_KEY}
             - SERVER_ADDRESS=${SERVER_ADDRESS}
-            - PORT=${PORT:14035}
+            - PORT=${PORT:-14035}
             - MEDI_CHANNEL=${MEDI_CHANNEL}
             - TG_CHAT=${TG_CHAT}
             - TG_CHANNEL=${TG_CHANNEL}
@@ -46,7 +46,7 @@ services:
             - TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}
             - TWITTER_CONSUMER_SECRET=${TWITTER_CONSUMER_SECRET}
             - SECRET_FOR_ENCODE_TGID=${SECRET_FOR_ENCODE_TGID}
-            - DATABASE_URL=mongodb://mongo:27017/JBOT
+            - DATABASE_URL=${DATABASE_URL:-mongodb://mongo:27017/JBOT}
     mongo:
         image: mongo:4.1.8-xenial
         volumes:
