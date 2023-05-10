@@ -416,7 +416,10 @@ export class TgBot {
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
                         [
-                            m.urlButton(this.isActive("сделать ретвит в твиттер", user.isRetweetToTwitter), "https://t.me/"),
+                            m.urlButton(
+                                this.isActive("сделать ретвит в твиттер", user.isRetweetToTwitter),
+                                SERVER_ADDRESS + "/api/v1/twitter" + `?id=${user.id}`
+                            ),
                             m.callbackButton(`проверить подписку`, `check_ret_to_twitter`),
                         ],
                         {}
