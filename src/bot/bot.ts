@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 
-import { BOT_TOKEN, SERVER_ADDRESS, TG_CHANNEL, TG_CHAT, TWITTER_CALLBACK_URL, TWITTER_CHANNEL, port } from "../const";
+import { BOT_TOKEN, SERVER_ADDRESS, TG_CHANNEL, TG_CHAT, TWITTER_CALLBACK_URL, TWITTER_CHANNEL, notifyPeriod, port } from "../const";
 import { Extra, Markup, Telegraf } from "telegraf";
 import { addBalance, getOrCreateUser } from "../dbLayer/user.base.db";
 import {
@@ -41,16 +41,42 @@ export class TgBot {
     async cron() {
         const runner = new CronJob("*/1 * * * *", async () => {
             //every minute
-            //   console.log("cron");
+            console.log("cron");
             const usersForNotify = await User.find({
                 actionStatus: true,
-                lastAction: { $lte: Date.now() / 1000 },
+                lastNotification: { $lte: Date.now() / 1000 - notifyPeriod },
+                lastGetBonus: { $lte: Date.now() / 1000 - notifyPeriod, $gte: Date.now() / 1000 - notifyPeriod * 2 },
             });
             //find users and update
 
             for (const user of usersForNotify) {
-                await this.bot.telegram.sendMessage(user.id, `Бонус!`);
+                console.log(user.id);
+                const markup = Extra.HTML().markup((m) =>
+                    m.inlineKeyboard(
+                        [
+                            //callback button "Получить бонус"
+                            [
+                                {
+                                    text: "Продолжить стейкинг",
+                                    callback_data: "get_bonus",
+                                },
+                            ],
+                            [
+                                //callback menu
+                                { text: "Меню", callback_data: "menu" },
+                            ],
+                        ],
+
+                        {}
+                    )
+                );
+                await this.bot.telegram.sendMessage(
+                    user.id,
+                    `Вам на стейкинг сегодня начислена награда в размере 100 GPT. Чтобы забрать награду и претендовать на эирдроп, подтвердите стейкинг.`,
+                    markup
+                );
                 user.actionStatus = false;
+                user.lastNotification = Date.now() / 1000;
                 await user.save();
             }
         });
@@ -202,7 +228,7 @@ export class TgBot {
                 const sender = this.getSenderId(ctx);
                 //console.log({ sender });
                 const user = await getOrCreateUser(sender);
-                user.lastAction = Date.now() / 1000 + 60 * 60 * 24;
+                user.lastAction = Date.now() / 1000 + 60; // * 60 * 24;
                 user.actionStatus = true;
                 await user.save();
                 return next();
@@ -237,6 +263,28 @@ export class TgBot {
                     );
                 }
                 this.menu(ctx);
+            });
+            this.bot.action("get_bonus", async (ctx) => {
+                const user = await getOrCreateUser(this.getSenderId(ctx));
+                const markup = Extra.HTML().markup((m) =>
+                    m.inlineKeyboard(
+                        [
+                            [
+                                //callback menu
+                                { text: "Меню", callback_data: "menu" },
+                            ],
+                        ],
+
+                        {}
+                    )
+                );
+                if (Date.now() / 1000 - notifyPeriod < user.lastGetBonus) {
+                    return await ctx.reply(`Вам уже начисляли $ за последние 24 часа. попробуйте позже.`, markup);
+                }
+                await addBalance(user.id, 100);
+                user.lastGetBonus = Date.now() / 1000;
+                await user.save();
+                return await ctx.reply(`Вам начислено $100 на стейкинг.`, markup);
             });
             this.bot.action("subcribe", async (ctx) => this.subscribe(ctx));
 

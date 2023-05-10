@@ -1,5 +1,7 @@
 import mongoose, { Document, Model, ObjectId, Schema, model } from "mongoose";
 
+import { notifyPeriod } from "../const";
+
 export interface IUser extends Document {
     id: number;
     balance: number;
@@ -18,13 +20,23 @@ export interface IUser extends Document {
     agreement: boolean;
     lastAction: number;
     actionStatus: boolean;
+    lastGetBonus: number;
+    lastNotification: number;
 }
-
+console.log("notifyPeriod:", notifyPeriod);
+console.log("nt:", Date.now() / 1000 - notifyPeriod - 10);
 const UserSchema = new Schema({
     id: {
         type: Number,
     },
-
+    lastNotification: {
+        type: Number,
+        default: 0,
+    },
+    lastGetBonus: {
+        type: Number,
+        default: Date.now() / 1000 - notifyPeriod - 10,
+    },
     lastAction: {
         type: Number,
         default: 0,

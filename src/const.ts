@@ -1,4 +1,6 @@
 import * as dotenv from "dotenv";
+export const notifyPeriod = 5 * 60;
+console.log(`Bot notifyPeriod: ${notifyPeriod}`);
 dotenv.config({ path: "./.env", debug: true });
 //console.log(process.env);
 export const port = process.env.PORT;
