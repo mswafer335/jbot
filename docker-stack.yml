@@ -7,8 +7,8 @@ services:
             - web
         ports:
             - "14042:14035"
-        volumes:
-            - static:/app/static
+        # volumes:
+        #     - static:/app/static
         deploy:
             labels:
                 - "traefik.enable=true"
