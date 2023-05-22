@@ -1,6 +1,5 @@
-import { TWITTER_CALLBACK_URL, TWITTER_CHANNEL_USERNAME } from "../../const";
-
 import { Oauth1Helper } from "./oauth";
+import { TWITTER_CALLBACK_URL } from "../../const";
 import axios from "axios";
 import { isNull } from "lodash";
 

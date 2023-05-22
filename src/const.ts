@@ -28,22 +28,22 @@ export const YOUTUBE_CHANNEL = process.env.YOUTUBE_CHANNEL;
 //     console.error("Run: CLIENT_ID, CLIENT_SECRET, REDIRECT_URL, BOT_TOKEN, ACCESS_TOKEN, REFRESH_TOKEN not found");
 //     process.exit(1);
 // }
-if (!CLIENT_ID) {
-    console.error("Run: CLIENT_ID not found");
-    process.exit(1);
-}
-if (!CLIENT_SECRET) {
-    console.error("Run: CLIENT_SECRET not found");
-    process.exit(1);
-}
-if (!REDIRECT_URL) {
-    console.error("Run: REDIRECT_URL not found");
-    process.exit(1);
-}
-if (!BOT_TOKEN) {
-    console.error("Run: BOT_TOKEN not found");
-    process.exit(1);
-}
+// if (!CLIENT_ID) {
+//     console.error("Run: CLIENT_ID not found");
+//     process.exit(1);
+// }
+// if (!CLIENT_SECRET) {
+//     console.error("Run: CLIENT_SECRET not found");
+//     process.exit(1);
+// }
+// if (!REDIRECT_URL) {
+//     console.error("Run: REDIRECT_URL not found");
+//     process.exit(1);
+// }
+// if (!BOT_TOKEN) {
+//     console.error("Run: BOT_TOKEN not found");
+//     process.exit(1);
+// }
 // if (!ACCESS_TOKEN) {
 //     console.error("Run: ACCESS_TOKEN not found");
 //     process.exit(1);
@@ -51,15 +51,15 @@ if (!BOT_TOKEN) {
 // if (!REFRESH_TOKEN) {
 //     console.error("Run: REFRESH_TOKEN not found");
 //     process.exit(1);
+// // }
+// if (!API_KEY) {
+//     console.error("Run: API_KEY not found");
+//     process.exit(1);
 // }
-if (!API_KEY) {
-    console.error("Run: API_KEY not found");
-    process.exit(1);
-}
-if (!CHANNEL_ID) {
-    console.error("Run: CHANNEL_ID not found");
-    process.exit(1);
-}
+// if (!CHANNEL_ID) {
+//     console.error("Run: CHANNEL_ID not found");
+//     process.exit(1);
+// }
 //twitter keys
 //CONSUMER_KEY,CONSUMER_SECRET,ACCESS_TOKEN,ACCESS_TOKEN_SECRET
 export const TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY!;

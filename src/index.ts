@@ -3,7 +3,6 @@ import * as bodyParser from "body-parser";
 import { MEDI_CHANNEL, SERVER_ADDRESS, TWITTER_CHANNEL, TWITTER_CHANNEL_USERNAME, YOUTUBE_CHANNEL, port } from "./const";
 import { axiosCheckSubcribe, axiosRequestAccessToken, axiosRequestToken } from "./api/twitter/axiosApi";
 import express, { NextFunction, Request, Response } from "express";
-import { getAccessToken, getSubscribers } from "./api/youtube/yt";
 
 import Action from "./model/action";
 import { TgBot } from "./bot/bot";
