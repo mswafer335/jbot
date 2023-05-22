@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-export const notifyPeriod = 5 * 60;
+export const notifyPeriod = 24 * 60 * 60;
 console.log(`Bot notifyPeriod: ${notifyPeriod}`);
 //dotenv.config({ path: "./.env", debug: true });
 dotenv.config();
