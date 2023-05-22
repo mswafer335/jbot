@@ -8,34 +8,53 @@ services:
             context: .
         container_name: jbot
         environment:
-            - CLIENT_ID=${CLIENT_ID}
-            - CLIENT_SECRET=${CLIENT_SECRET}
             - REDIRECT_URL=${REDIRECT_URL}
             - BOT_TOKEN=${BOT_TOKEN}
-            - API_KEY=${API_KEY}
-            - CHANNEL_ID=${CHANNEL_ID}
-            - ACCESS_TOKEN=${ACCESS_TOKEN}
-            #            - DATABASE_URL=${DATABASE_URL}
+
             - TG_CHANNEL_ID=${TG_CHANNEL_ID}
             - TG_CHAT_ID=${TG_CHAT_ID}
-            - TWITTER_ACCESS_TOKEN=${TWITTER_ACCESS_TOKEN}
-            - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
-            - TWITTER_USER=${TWITTER_USER}
-            - MEDI_API=${MEDI_API}
-            - MEDI_X_RAPID_KEY=${MEDI_X_RAPID_KEY}
-            - SERVER_ADDRESS=${SERVER_ADDRESS}
-            - PORT=${PORT}
-            - MEDI_CHANNEL=${MEDI_CHANNEL}
             - TG_CHAT=${TG_CHAT}
             - TG_CHANNEL=${TG_CHANNEL}
             - YOUTUBE_CHANNEL=${YOUTUBE_CHANNEL}
             - TWITTER_CHANNEL=${TWITTER_CHANNEL}
             - TWITTER_CHANNEL_USERNAME=${TWITTER_CHANNEL_USERNAME}
-            - MY_NAME=${MY_NAME}
-            - TWITTER_CALLBACK_URL=${TWITTER_CALLBACK_URL}
+            - SERVER_ADDRESS=${SERVER_ADDRESS}
+
+            #- PORT=${PORT:-14035}
+            - PORT=${PORT}
             - TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}
             - TWITTER_CONSUMER_SECRET=${TWITTER_CONSUMER_SECRET}
             - SECRET_FOR_ENCODE_TGID=${SECRET_FOR_ENCODE_TGID}
+            #- DATABASE_URL=${DATABASE_URL:-mongodb://mongo:27017/JBOT}
+
+            # - CLIENT_ID=${CLIENT_ID}
+            # - CLIENT_SECRET=${CLIENT_SECRET}
+            # - REDIRECT_URL=${REDIRECT_URL}
+            # - BOT_TOKEN=${BOT_TOKEN}
+            # - API_KEY=${API_KEY}
+            # - CHANNEL_ID=${CHANNEL_ID}
+            # - ACCESS_TOKEN=${ACCESS_TOKEN}
+            # #            - DATABASE_URL=${DATABASE_URL}
+            # - TG_CHANNEL_ID=${TG_CHANNEL_ID}
+            # - TG_CHAT_ID=${TG_CHAT_ID}
+            # - TWITTER_ACCESS_TOKEN=${TWITTER_ACCESS_TOKEN}
+            # - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
+            # - TWITTER_USER=${TWITTER_USER}
+            # - MEDI_API=${MEDI_API}
+            # - MEDI_X_RAPID_KEY=${MEDI_X_RAPID_KEY}
+            # - SERVER_ADDRESS=${SERVER_ADDRESS}
+
+            # - MEDI_CHANNEL=${MEDI_CHANNEL}
+            # - TG_CHAT=${TG_CHAT}
+            # - TG_CHANNEL=${TG_CHANNEL}
+            # - YOUTUBE_CHANNEL=${YOUTUBE_CHANNEL}
+            # - TWITTER_CHANNEL=${TWITTER_CHANNEL}
+            # - TWITTER_CHANNEL_USERNAME=${TWITTER_CHANNEL_USERNAME}
+            # - MY_NAME=${MY_NAME}
+            # - TWITTER_CALLBACK_URL=${TWITTER_CALLBACK_URL}
+            # - TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}
+            # - TWITTER_CONSUMER_SECRET=${TWITTER_CONSUMER_SECRET}
+            # - SECRET_FOR_ENCODE_TGID=${SECRET_FOR_ENCODE_TGID}
             - DATABASE_URL=mongodb://mongo:27017/JBOT
         ports:
             - "14035:14035"
