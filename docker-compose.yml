@@ -46,6 +46,6 @@ services:
         container_name: jbot-mongo-db
         restart: always
         volumes:
-            - ./data/db:/data/db
+            - ../data/db:/data/db
         # ports:
         #     - "27017:27017"
