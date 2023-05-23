@@ -42,42 +42,46 @@ export class TgBot {
         const runner = new CronJob("*/1 * * * *", async () => {
             //every minute
             console.log("cron");
-            const usersForNotify = await User.find({
-                actionStatus: true,
-                lastNotification: { $lte: Date.now() / 1000 - notifyPeriod },
-                lastGetBonus: { $lte: Date.now() / 1000 - notifyPeriod, $gte: Date.now() / 1000 - notifyPeriod * 2 },
-            });
-            //find users and update
+            try {
+                const usersForNotify = await User.find({
+                    actionStatus: true,
+                    lastNotification: { $lte: Date.now() / 1000 - notifyPeriod },
+                    lastGetBonus: { $lte: Date.now() / 1000 - notifyPeriod, $gte: Date.now() / 1000 - notifyPeriod * 2 },
+                });
+                //find users and update
 
-            for (const user of usersForNotify) {
-                console.log(user.id);
-                const markup = Extra.HTML().markup((m) =>
-                    m.inlineKeyboard(
-                        [
-                            //callback button "Получить бонус"
+                for (const user of usersForNotify) {
+                    console.log(user.id);
+                    const markup = Extra.HTML().markup((m) =>
+                        m.inlineKeyboard(
                             [
-                                {
-                                    text: "Продолжить стейкинг",
-                                    callback_data: "get_bonus",
-                                },
+                                //callback button "Получить бонус"
+                                [
+                                    {
+                                        text: "Продолжить стейкинг",
+                                        callback_data: "get_bonus",
+                                    },
+                                ],
+                                [
+                                    //callback menu
+                                    { text: "Меню", callback_data: "menu" },
+                                ],
                             ],
-                            [
-                                //callback menu
-                                { text: "Меню", callback_data: "menu" },
-                            ],
-                        ],
 
-                        {}
-                    )
-                );
-                await this.bot.telegram.sendMessage(
-                    user.id,
-                    `Вам на стейкинг сегодня начислена награда в размере 100 GPT. Чтобы забрать награду и претендовать на эирдроп, подтвердите стейкинг.`,
-                    markup
-                );
-                user.actionStatus = false;
-                user.lastNotification = Date.now() / 1000;
-                await user.save();
+                            {}
+                        )
+                    );
+                    await this.bot.telegram.sendMessage(
+                        user.id,
+                        `Вам на стейкинг сегодня начислена награда в размере 100 GPT. Чтобы забрать награду и претендовать на эирдроп, подтвердите стейкинг.`,
+                        markup
+                    );
+                    user.actionStatus = false;
+                    user.lastNotification = Date.now() / 1000;
+                    await user.save();
+                }
+            } catch (error) {
+                console.log(error);
             }
         });
         runner.start();
