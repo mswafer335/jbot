@@ -302,6 +302,12 @@ export class TgBot {
                         });
                         await action.save();
                     }
+                    const checkApi = await checkJoinToChannel(ctx, this.getSenderId(ctx));
+                    if (!checkApi) {
+                        user.isJoinToChannel = false;
+                        await user.save();
+                        return await ctx.reply("Вы отписались от канала", await this.getReplyKeyboard(user.id));
+                    }
                     return await ctx.reply("Вы уже подписаны на телеграм канал", await this.getReplyKeyboard(user.id));
                 }
                 const checkApi = await checkJoinToChannel(ctx, this.getSenderId(ctx));
