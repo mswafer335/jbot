@@ -20,7 +20,7 @@ services:
         environment:
             - REDIRECT_URL=${REDIRECT_URL}
             - BOT_TOKEN=${BOT_TOKEN}
-
+            - MEDI_CHANNEL=${MEDI_CHANNEL}
             - TG_CHANNEL_ID=${TG_CHANNEL_ID}
             - TG_CHAT_ID=${TG_CHAT_ID}
             - TG_CHAT=${TG_CHAT}
