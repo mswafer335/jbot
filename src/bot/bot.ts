@@ -487,56 +487,56 @@ export class TgBot {
             this.bot.command("id", async (ctx) => {
                 ctx.reply(`${ctx.chat?.id || `id не найден`}`);
             });
-            this.bot.command("e", async (ctx) => {
-                const user = await getOrCreateUser(this.getSenderId(ctx));
+            // this.bot.command("e", async (ctx) => {
+            //     const user = await getOrCreateUser(this.getSenderId(ctx));
 
-                // эмуляция подписки
-                //вступить в телеграм канал
-                //вступить в телеграм чат
-                //подписаться на твиттер
-                //сделать ретвит в твиттере
-                //подписаться на медиум
-                //подписаться на ютуб
-                const markup = Extra.HTML().markup((m) =>
-                    m.inlineKeyboard(
-                        [
-                            [m.callbackButton(this.isActive("вступить в телеграм канал", user.isJoinToChannel), `emul_sub_to_channel`)],
-                            [m.callbackButton(this.isActive("вступить в телеграм чат", user.isJoinToChat), `emul_sub_to_chat`)],
-                            [m.callbackButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), `emul_sub_to_twitter`)],
-                            [m.callbackButton(this.isActive("сделать ретвит в твиттере", user.isRetweetToTwitter), `emul_ret_to_twitter`)],
-                            [m.callbackButton(this.isActive("подписаться на медиум", user.isSubscribeToMedium), `emul_sub_to_medium`)],
-                            [m.callbackButton(this.isActive("подписаться на ютуб", user.isSubscribeToYoutube), `emul_sub_to_youtube`)],
-                        ],
-                        {}
-                    )
-                );
-                await ctx.reply(`эмуляция подписки`, markup);
-            });
+            //     // эмуляция подписки
+            //     //вступить в телеграм канал
+            //     //вступить в телеграм чат
+            //     //подписаться на твиттер
+            //     //сделать ретвит в твиттере
+            //     //подписаться на медиум
+            //     //подписаться на ютуб
+            //     const markup = Extra.HTML().markup((m) =>
+            //         m.inlineKeyboard(
+            //             [
+            //                 [m.callbackButton(this.isActive("вступить в телеграм канал", user.isJoinToChannel), `emul_sub_to_channel`)],
+            //                 [m.callbackButton(this.isActive("вступить в телеграм чат", user.isJoinToChat), `emul_sub_to_chat`)],
+            //                 [m.callbackButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), `emul_sub_to_twitter`)],
+            //                 [m.callbackButton(this.isActive("сделать ретвит в твиттере", user.isRetweetToTwitter), `emul_ret_to_twitter`)],
+            //                 [m.callbackButton(this.isActive("подписаться на медиум", user.isSubscribeToMedium), `emul_sub_to_medium`)],
+            //                 [m.callbackButton(this.isActive("подписаться на ютуб", user.isSubscribeToYoutube), `emul_sub_to_youtube`)],
+            //             ],
+            //             {}
+            //         )
+            //     );
+            //     await ctx.reply(`эмуляция подписки`, markup);
+            // });
             //generate handles for all emulate actions
-            this.bot.action("emul_sub_to_channel", async (ctx) => {
-                switchEmulateSubJoinToChannel(this.getSenderId(ctx));
-                await ctx.reply(`Вступил в телеграм канал`);
-            });
-            this.bot.action("emul_sub_to_chat", async (ctx) => {
-                switchEmulateSubJoinToChat(this.getSenderId(ctx));
-                await ctx.reply(`Вступил в телеграм чат`);
-            });
-            this.bot.action("emul_sub_to_twitter", async (ctx) => {
-                switchEmulateSubSubscribeToTwitter(this.getSenderId(ctx));
-                await ctx.reply(`Вступил в твиттер`);
-            });
-            this.bot.action("emul_ret_to_twitter", async (ctx) => {
-                switchEmulateSubRetweetToTwitter(this.getSenderId(ctx));
-                await ctx.reply(`ретвитнул в твиттер`);
-            });
-            this.bot.action("emul_sub_to_medium", async (ctx) => {
-                switchEmulateSubSubscribeToMedium(this.getSenderId(ctx));
-                await ctx.reply(`Вступил в медиум`);
-            });
-            this.bot.action("emul_sub_to_youtube", async (ctx) => {
-                switchEmulateSubSubscribeToYoutube(this.getSenderId(ctx));
-                await ctx.reply(`Вступил в ютуб`);
-            });
+            // this.bot.action("emul_sub_to_channel", async (ctx) => {
+            //     switchEmulateSubJoinToChannel(this.getSenderId(ctx));
+            //     await ctx.reply(`Вступил в телеграм канал`);
+            // });
+            // this.bot.action("emul_sub_to_chat", async (ctx) => {
+            //     switchEmulateSubJoinToChat(this.getSenderId(ctx));
+            //     await ctx.reply(`Вступил в телеграм чат`);
+            // });
+            // this.bot.action("emul_sub_to_twitter", async (ctx) => {
+            //     switchEmulateSubSubscribeToTwitter(this.getSenderId(ctx));
+            //     await ctx.reply(`Вступил в твиттер`);
+            // });
+            // this.bot.action("emul_ret_to_twitter", async (ctx) => {
+            //     switchEmulateSubRetweetToTwitter(this.getSenderId(ctx));
+            //     await ctx.reply(`ретвитнул в твиттер`);
+            // });
+            // this.bot.action("emul_sub_to_medium", async (ctx) => {
+            //     switchEmulateSubSubscribeToMedium(this.getSenderId(ctx));
+            //     await ctx.reply(`Вступил в медиум`);
+            // });
+            // this.bot.action("emul_sub_to_youtube", async (ctx) => {
+            //     switchEmulateSubSubscribeToYoutube(this.getSenderId(ctx));
+            //     await ctx.reply(`Вступил в ютуб`);
+            // });
             //listen post on channel
             this.bot.on("channel_post", async (ctx) => {
                 //print post text
