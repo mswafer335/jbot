@@ -71,14 +71,18 @@ export class TgBot {
                             {}
                         )
                     );
-                    await this.bot.telegram.sendMessage(
-                        user.id,
-                        `Вам на стейкинг сегодня начислена награда в размере 100 GPT. Чтобы забрать награду и претендовать на эирдроп, подтвердите стейкинг.`,
-                        markup
-                    );
-                    user.actionStatus = false;
-                    user.lastNotification = Date.now() / 1000;
-                    await user.save();
+                    try {
+                        await this.bot.telegram.sendMessage(
+                            user.id,
+                            `Вам на стейкинг сегодня начислена награда в размере 100 GPT. Чтобы забрать награду и претендовать на эирдроп, подтвердите стейкинг.`,
+                            markup
+                        );
+                        user.actionStatus = false;
+                        user.lastNotification = Date.now() / 1000;
+                        await user.save();
+                    } catch (error) {
+                        console.log(error);
+                    }
                 }
             } catch (error) {
                 console.log(error);
@@ -228,8 +232,25 @@ export class TgBot {
         try {
             this.cron();
             this.bot.use(async (ctx, next) => {
-                //   console.log("ctx: ", ctx);
+                //    console.log("ctx: ", ctx);
+                //    console.log(`type:`, ctx.chat?.type);
+                if (ctx.chat?.type != "private") {
+                    // console.log(`chat is not private`);
+                    if (ctx.message?.text == "/id") {
+                        await ctx.reply(`id: ${ctx.chat?.id}`);
+                        return;
+                    }
+                    const text = (ctx.update?.channel_post as any)?.text as string;
+                    // console.log("ctx.msg", (ctx?.update?.channel_post as any).text);
+                    if (text == "/id") {
+                        return await ctx.reply(`${ctx.chat?.id || `id не найден`}`);
+                    }
+                    return;
+                }
                 const sender = this.getSenderId(ctx);
+                if (!sender || isNaN(sender)) {
+                    return;
+                }
                 //console.log({ sender });
                 const user = await getOrCreateUser(sender);
                 user.lastAction = Date.now() / 1000 + 60; // * 60 * 24;
