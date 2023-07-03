@@ -280,7 +280,7 @@ export class TgBot {
                             {}
                         )
                     );
-                    user.agreement = true;
+                    //    user.agreement = true;
                     await user.save();
                     await addBalance(user.id, 1000);
                     return await ctx.reply(
