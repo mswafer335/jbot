@@ -45,6 +45,7 @@ export class TgBot {
             try {
                 const usersForNotify = await User.find({
                     actionStatus: true,
+                    agreement: true,
                     lastNotification: { $lte: Date.now() / 1000 - notifyPeriod },
                     lastGetBonus: { $lte: Date.now() / 1000 - notifyPeriod, $gte: Date.now() / 1000 - notifyPeriod * 2 },
                 });
@@ -274,7 +275,7 @@ export class TgBot {
                 if (!user.agreement) {
                     const markup = Extra.HTML().markup((m) =>
                         m.inlineKeyboard(
-                            [[m.callbackButton(`Выполнить задания`, "subcribe")]],
+                            [[m.callbackButton(`Выполнить задания`, "agreement")]],
 
                             {}
                         )
@@ -310,6 +311,12 @@ export class TgBot {
                 user.lastGetBonus = Date.now() / 1000;
                 await user.save();
                 return await ctx.reply(`Вам начислено $100 на стейкинг.`, markup);
+            });
+            this.bot.action("agreement", async (ctx) => {
+                const user = await getOrCreateUser(this.getSenderId(ctx));
+                user.agreement = true;
+                await user.save();
+                return this.subscribe(ctx);
             });
             this.bot.action("subcribe", async (ctx) => this.subscribe(ctx));
 
