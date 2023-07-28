@@ -87,7 +87,7 @@ app.get("/api/v1/medium", validationAndParseMiddleware(idDto), async (req: Reque
 app.get("/api/v1/twitter", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
     res.redirect(TWITTER_CHANNEL!);
     // console.log(req.body);
-    const findAction = await Action.findOne({ id: req.body.id, action: actions.twitter_channel });
+    const findAction = await Action.findOne({ id: req.body.id, action: actions.retwit });
     if (findAction) {
         return;
     }

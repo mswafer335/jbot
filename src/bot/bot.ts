@@ -445,12 +445,12 @@ export class TgBot {
                 if (user.isRetweetToTwitter) {
                     return await ctx.reply("Вы уже ретвитнули", await this.getReplyKeyboard(user.id));
                 }
-                const checkApi = await checkRetweetToTwitter(this.getSenderId(ctx));
-                if (checkApi) {
-                    user.isRetweetToTwitter = true;
-                    await user.save();
-                    return await ctx.reply("Вы уже подписаны на твиттер", await this.getReplyKeyboard(user.id));
-                }
+                // const checkApi = await checkRetweetToTwitter(this.getSenderId(ctx));
+                // if (checkApi) {
+                //     user.isRetweetToTwitter = true;
+                //     await user.save();
+                //     return await ctx.reply("Вы уже подписаны на твиттер", await this.getReplyKeyboard(user.id));
+                // }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
                         [
@@ -463,7 +463,7 @@ export class TgBot {
                         {}
                     )
                 );
-                return await ctx.reply(`вы еще не подписаны на твиттер`, markup);
+                return await ctx.reply(`вы еще сделали ретвит`, markup);
             });
             this.bot.action("check_sub_to_medium", async (ctx) => {
                 const user = await getOrCreateUser(this.getSenderId(ctx));
