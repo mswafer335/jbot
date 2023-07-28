@@ -211,19 +211,22 @@ app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: Next
         return;
     }
     const tokens: any = await axiosRequestAccessToken(oauth_token, oauth_verifier);
-    // console.log("axiosRequestAccessToken> tokens:", tokens);
+    console.log("axiosRequestAccessToken> tokens:", tokens);
     if (!tokens) {
         res.status(400).send({ status: "error", message: "access_token or access_token_secret is required" });
         return;
     }
 
     const userName = tokens?.screen_name;
+    console.log("axiosRequestAccessToken> userName:", userName);
     //use twitter api for get subscriptions user
     // const userSubs = await axiosGetUserSubscriptions(tokens.oauth_token, tokens.oauth_token_secret);
     //console.log("axiosGetUserSubscriptions> userSubs:", userSubs);
-
+    // return res.status(200).send({
+    //     status: "ok",
+    // });
     const isSub = await axiosCheckSubcribe(tokens.oauth_token, tokens.oauth_token_secret, userName, TWITTER_CHANNEL_USERNAME);
-    //  console.log("axiosCheckSubcribe> isSub:", isSub);
+    console.log("axiosCheckSubcribe> isSub:", isSub);
     if (isNull(isSub)) {
         //return error broken token
         res.status(400).send({ status: "error", message: "api broken check sub" });

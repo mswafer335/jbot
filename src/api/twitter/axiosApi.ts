@@ -62,10 +62,11 @@ export async function axiosRequestToken() {
         const headers = {
             headers: authHeader,
         };
-        //console.log(`hrs: `, headers);
+        console.log(`hrs: `, headers);
         const result = await axios.post(request.url, request.body, headers as any);
 
         if (result.data) {
+            console.log("axiosRequestToken> result.data", result.data);
             if (result.data.error) {
                 console.log(result.data.error);
                 return null;
@@ -107,6 +108,7 @@ export async function axiosCheckSubcribe(access_token, access_token_secret, user
         }
     } catch (error) {
         console.error(`[axiosGetUserSubscriptions] (${error})`);
+
         return null;
     }
     return null;
