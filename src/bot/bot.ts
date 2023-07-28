@@ -477,7 +477,10 @@ export class TgBot {
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
                         [
-                            m.urlButton(this.isActive("подписаться на медиум", user.isSubscribeToMedium), "https://t.me/"),
+                            m.urlButton(
+                                this.isActive("подписаться на медиум", user.isSubscribeToMedium),
+                                SERVER_ADDRESS + "/api/v1/medium" + `?id=${user.id}`
+                            ),
                             m.callbackButton(`проверить подписку`, `check_sub_to_medium`),
                         ],
                         {}
