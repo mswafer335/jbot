@@ -6,10 +6,8 @@ import { addBalance, getOrCreateUser } from "../dbLayer/user.base.db";
 import {
     checkJoinToChannel,
     checkJoinToChat,
-    checkRetweetToTwitter,
-    checkSubscribeToMedium,
-    checkSubscribeToTwitter,
-    checkSubscribeToYoutube,
+    // checkSubscribeToMedium,
+    // checkSubscribeToYoutube,
     switchEmulateSubJoinToChannel,
     switchEmulateSubJoinToChat,
     switchEmulateSubRetweetToTwitter,
@@ -416,19 +414,19 @@ export class TgBot {
                     }
                     return await ctx.reply("Вы уже подписаны на твиттер", await this.getReplyKeyboard(user.id));
                 }
-                const checkApi = await checkSubscribeToTwitter(this.getSenderId(ctx));
-                if (checkApi) {
-                    if (!findAction) {
-                        const action = new Action({
-                            id: this.getSenderId(ctx),
-                            action: actions.tg_chat,
-                        });
-                        await action.save();
-                    }
-                    user.isSubscribeToTwitter = true;
-                    await user.save();
-                    return await ctx.reply("Вы уже подписаны на твиттер", await this.getReplyKeyboard(user.id));
-                }
+                // const checkApi = await checkSubscribeToTwitter(this.getSenderId(ctx));
+                // if (checkApi) {
+                //     if (!findAction) {
+                //         const action = new Action({
+                //             id: this.getSenderId(ctx),
+                //             action: actions.tg_chat,
+                //         });
+                //         await action.save();
+                //     }
+                //     user.isSubscribeToTwitter = true;
+                //     await user.save();
+                //     return await ctx.reply("Вы уже подписаны на твиттер", await this.getReplyKeyboard(user.id));
+                // }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard([
                         m.urlButton(
@@ -470,12 +468,12 @@ export class TgBot {
                 if (user.isSubscribeToMedium) {
                     return await ctx.reply("Вы уже подписаны на медиум", await this.getReplyKeyboard(user.id));
                 }
-                const checkApi = await checkSubscribeToMedium(this.getSenderId(ctx));
-                if (checkApi) {
-                    user.isSubscribeToMedium = true;
-                    await user.save();
-                    return await ctx.reply("Вы уже подписаны на медиум", await this.getReplyKeyboard(user.id));
-                }
+                // const checkApi = await checkSubscribeToMedium(this.getSenderId(ctx));
+                // if (checkApi) {
+                //     user.isSubscribeToMedium = true;
+                //     await user.save();
+                //     return await ctx.reply("Вы уже подписаны на медиум", await this.getReplyKeyboard(user.id));
+                // }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
                         [
@@ -492,12 +490,12 @@ export class TgBot {
                 if (user.isSubscribeToYoutube) {
                     return await ctx.reply("Вы уже подписаны на ютуб", await this.getReplyKeyboard(user.id));
                 }
-                const checkApi = await checkSubscribeToYoutube(this.getSenderId(ctx));
-                if (checkApi) {
-                    user.isSubscribeToYoutube = true;
-                    await user.save();
-                    return await ctx.reply("Вы уже подписаны на ютуб", await this.getReplyKeyboard(user.id));
-                }
+                // const checkApi = await checkSubscribeToYoutube(this.getSenderId(ctx));
+                // if (checkApi) {
+                //     user.isSubscribeToYoutube = true;
+                //     await user.save();
+                //     return await ctx.reply("Вы уже подписаны на ютуб", await this.getReplyKeyboard(user.id));
+                // }
                 const markup = Extra.HTML().markup((m) =>
                     m.inlineKeyboard(
                         [

@@ -40,34 +40,34 @@ export const checkJoinToChat = async (ctx: TelegrafContext, id: number) => {
         return false;
     }
 };
-export const checkSubscribeToTwitter = async (id: number): Promise<boolean> => {
-    if (arrEmulateSubscribe.has(id)) {
-        return arrEmulateSubscribe.get(id)!.isSubscribeToTwitter;
-    }
-    //TODO add real api
-    return false;
-};
-export const checkRetweetToTwitter = async (id: number): Promise<boolean> => {
-    if (arrEmulateSubscribe.has(id)) {
-        return arrEmulateSubscribe.get(id)!.isRetweetToTwitter;
-    }
-    //TODO add real api
-    return false;
-};
-export const checkSubscribeToMedium = async (id: number): Promise<boolean> => {
-    if (arrEmulateSubscribe.has(id)) {
-        return arrEmulateSubscribe.get(id)!.isSubscribeToMedium;
-    }
-    //TODO add real api
-    return false;
-};
-export const checkSubscribeToYoutube = async (id: number): Promise<boolean> => {
-    if (arrEmulateSubscribe.has(id)) {
-        return arrEmulateSubscribe.get(id)!.isSubscribeToYoutube;
-    }
-    //TODO add real api
-    return false;
-};
+// export const checkSubscribeToTwitter = async (id: number): Promise<boolean> => {
+//     if (arrEmulateSubscribe.has(id)) {
+//         return arrEmulateSubscribe.get(id)!.isSubscribeToTwitter;
+//     }
+//     //TODO add real api
+//     return false;
+// };
+// export const checkRetweetToTwitter = async (id: number): Promise<boolean> => {
+//     if (arrEmulateSubscribe.has(id)) {
+//         return arrEmulateSubscribe.get(id)!.isRetweetToTwitter;
+//     }
+//     //TODO add real api
+//     return false;
+// };
+// export const checkSubscribeToMedium = async (id: number): Promise<boolean> => {
+//     if (arrEmulateSubscribe.has(id)) {
+//         return arrEmulateSubscribe.get(id)!.isSubscribeToMedium;
+//     }
+//     //TODO add real api
+//     return false;
+// };
+// export const checkSubscribeToYoutube = async (id: number): Promise<boolean> => {
+//     if (arrEmulateSubscribe.has(id)) {
+//         return arrEmulateSubscribe.get(id)!.isSubscribeToYoutube;
+//     }
+//     //TODO add real api
+//     return false;
+// };
 export const getOrCreateEmulateSub = (id: number) => {
     if (arrEmulateSubscribe.has(id)) {
         return arrEmulateSubscribe.get(id)!;
