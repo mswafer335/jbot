@@ -64,6 +64,7 @@ export enum actions {
     youtube_channel = "youtube_channel",
     tg_channel = "tg_channel",
     tg_chat = "tg_chat",
+    retwit = "retwit",
 }
 app.get("/api/v1/medium", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
     res.redirect(MEDI_CHANNEL!);
@@ -99,6 +100,24 @@ app.get("/api/v1/twitter", validationAndParseMiddleware(idDto), async (req: Requ
         user!.isSubscribeToTwitter = true;
         user!.save();
         bot.sendMessageToUserID(req.body.id, "Вы подписались на Twitter!");
+    });
+});
+app.get("/api/v1/retwit", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
+    res.redirect(TWITTER_CHANNEL!);
+    // console.log(req.body);
+    const findAction = await Action.findOne({ id: req.body.id, action: actions.retwit });
+    if (findAction) {
+        return;
+    }
+    const action = new Action({
+        id: req.body.id,
+        action: actions.retwit,
+    });
+    await action.save();
+    User.findOne({ id: req.body.id }).then((user) => {
+        user!.isRetweetToTwitter = true;
+        user!.save();
+        // bot.sendMessageToUserID(req.body.id, "Вы подписались на Twitter!");
     });
 });
 app.get("/api/v1/youtube", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {

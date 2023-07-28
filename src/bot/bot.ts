@@ -113,12 +113,12 @@ export class TgBot {
                     ],
                     [
                         m.urlButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), TWITTER_CHANNEL!),
-                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `u/${encodeTGID(sId)}`),
+                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `/u/${encodeTGID(sId)}`),
                     ],
                     [
                         m.urlButton(
                             this.isActive("сделать ретвит в твиттере", user.isRetweetToTwitter),
-                            SERVER_ADDRESS + "/api/v1/twitter" + `?id=${user.id}`
+                            SERVER_ADDRESS + "/api/v1/retwit" + `?id=${user.id}`
                         ),
                         m.callbackButton(`проверить подписку`, `check_ret_to_twitter`),
                     ],
@@ -197,12 +197,12 @@ export class TgBot {
                     ],
                     [
                         m.urlButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), TWITTER_CHANNEL!),
-                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `u/${encodeTGID(sId)}`),
+                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `/u/${encodeTGID(sId)}`),
                     ],
                     [
                         m.urlButton(
                             this.isActive("сделать ретвит в твиттере", user.isRetweetToTwitter),
-                            SERVER_ADDRESS + "/api/v1/twitter" + `?id=${user.id}`
+                            SERVER_ADDRESS + "/api/v1/retwit" + `?id=${user.id}`
                         ),
                         m.callbackButton(`проверить подписку`, `check_ret_to_twitter`),
                     ],
@@ -456,7 +456,7 @@ export class TgBot {
                         [
                             m.urlButton(
                                 this.isActive("сделать ретвит в твиттер", user.isRetweetToTwitter),
-                                SERVER_ADDRESS + "/api/v1/twitter" + `?id=${user.id}`
+                                SERVER_ADDRESS + "/api/v1/retwit" + `?id=${user.id}`
                             ),
                             m.callbackButton(`проверить подписку`, `check_ret_to_twitter`),
                         ],
