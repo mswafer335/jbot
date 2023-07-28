@@ -461,7 +461,7 @@ export class TgBot {
                         {}
                     )
                 );
-                return await ctx.reply(`вы еще сделали ретвит`, markup);
+                return await ctx.reply(`вы еще не сделали ретвит`, markup);
             });
             this.bot.action("check_sub_to_medium", async (ctx) => {
                 const user = await getOrCreateUser(this.getSenderId(ctx));
@@ -515,6 +515,15 @@ export class TgBot {
             });
             this.bot.command("id", async (ctx) => {
                 ctx.reply(`${ctx.chat?.id || `id не найден`}`);
+            });
+            this.bot.command("slaReset", async (ctx) => {
+                const user = await getOrCreateUser(this.getSenderId(ctx));
+                await user.deleteOne();
+                const actions = await Action.find({ id: this.getSenderId(ctx) });
+                for (const action of actions) {
+                    await action.deleteOne();
+                }
+                return await ctx.reply("Успешно удалено", await this.getReplyKeyboard(user.id));
             });
             // this.bot.command("e", async (ctx) => {
             //     const user = await getOrCreateUser(this.getSenderId(ctx));
