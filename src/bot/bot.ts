@@ -111,7 +111,7 @@ export class TgBot {
                     ],
                     [
                         m.urlButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), TWITTER_CHANNEL!),
-                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `/u/${encodeTGID(sId)}`),
+                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `u/${encodeTGID(sId)}`),
                     ],
                     [
                         m.urlButton(
@@ -195,7 +195,7 @@ export class TgBot {
                     ],
                     [
                         m.urlButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), TWITTER_CHANNEL!),
-                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `/u/${encodeTGID(sId)}`),
+                        m.urlButton(`проверить подписку`, TWITTER_CALLBACK_URL + `u/${encodeTGID(sId)}`),
                     ],
                     [
                         m.urlButton(
