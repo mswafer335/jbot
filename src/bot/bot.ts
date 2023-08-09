@@ -6,8 +6,6 @@ import { addBalance, getOrCreateUser } from "../dbLayer/user.base.db";
 import {
     checkJoinToChannel,
     checkJoinToChat,
-    // checkSubscribeToMedium,
-    // checkSubscribeToYoutube,
     switchEmulateSubJoinToChannel,
     switchEmulateSubJoinToChat,
     switchEmulateSubRetweetToTwitter,
@@ -525,56 +523,7 @@ export class TgBot {
                 }
                 return await ctx.reply("Успешно удалено", await this.getReplyKeyboard(user.id));
             });
-            // this.bot.command("e", async (ctx) => {
-            //     const user = await getOrCreateUser(this.getSenderId(ctx));
 
-            //     // эмуляция подписки
-            //     //вступить в телеграм канал
-            //     //вступить в телеграм чат
-            //     //подписаться на твиттер
-            //     //сделать ретвит в твиттере
-            //     //подписаться на медиум
-            //     //подписаться на ютуб
-            //     const markup = Extra.HTML().markup((m) =>
-            //         m.inlineKeyboard(
-            //             [
-            //                 [m.callbackButton(this.isActive("вступить в телеграм канал", user.isJoinToChannel), `emul_sub_to_channel`)],
-            //                 [m.callbackButton(this.isActive("вступить в телеграм чат", user.isJoinToChat), `emul_sub_to_chat`)],
-            //                 [m.callbackButton(this.isActive("подписаться на твиттер", user.isSubscribeToTwitter), `emul_sub_to_twitter`)],
-            //                 [m.callbackButton(this.isActive("сделать ретвит в твиттере", user.isRetweetToTwitter), `emul_ret_to_twitter`)],
-            //                 [m.callbackButton(this.isActive("подписаться на медиум", user.isSubscribeToMedium), `emul_sub_to_medium`)],
-            //                 [m.callbackButton(this.isActive("подписаться на ютуб", user.isSubscribeToYoutube), `emul_sub_to_youtube`)],
-            //             ],
-            //             {}
-            //         )
-            //     );
-            //     await ctx.reply(`эмуляция подписки`, markup);
-            // });
-            //generate handles for all emulate actions
-            // this.bot.action("emul_sub_to_channel", async (ctx) => {
-            //     switchEmulateSubJoinToChannel(this.getSenderId(ctx));
-            //     await ctx.reply(`Вступил в телеграм канал`);
-            // });
-            // this.bot.action("emul_sub_to_chat", async (ctx) => {
-            //     switchEmulateSubJoinToChat(this.getSenderId(ctx));
-            //     await ctx.reply(`Вступил в телеграм чат`);
-            // });
-            // this.bot.action("emul_sub_to_twitter", async (ctx) => {
-            //     switchEmulateSubSubscribeToTwitter(this.getSenderId(ctx));
-            //     await ctx.reply(`Вступил в твиттер`);
-            // });
-            // this.bot.action("emul_ret_to_twitter", async (ctx) => {
-            //     switchEmulateSubRetweetToTwitter(this.getSenderId(ctx));
-            //     await ctx.reply(`ретвитнул в твиттер`);
-            // });
-            // this.bot.action("emul_sub_to_medium", async (ctx) => {
-            //     switchEmulateSubSubscribeToMedium(this.getSenderId(ctx));
-            //     await ctx.reply(`Вступил в медиум`);
-            // });
-            // this.bot.action("emul_sub_to_youtube", async (ctx) => {
-            //     switchEmulateSubSubscribeToYoutube(this.getSenderId(ctx));
-            //     await ctx.reply(`Вступил в ютуб`);
-            // });
             //listen post on channel
             this.bot.on("channel_post", async (ctx) => {
                 //print post text
@@ -584,37 +533,10 @@ export class TgBot {
                     return await ctx.reply(`${ctx.chat?.id || `id не найден`}`);
                 }
             });
-            // this.bot.hears(/.*/, async (ctx) => {
-            //     // // Explicit usage
-            //     // await ctx.telegram.sendMessage(ctx.message.chat.id, `Hello ${ctx.state.role}`);
-            //     console.log("ctx.msg", ctx.message?.text);
-            //     // Using context shortcut
-            //     await ctx.reply(`Hello `);
-            // });
 
             this.bot.action("menu", async (ctx) => this.menu(ctx));
-            // this.bot.action("all subs", (ctx) => this.allSubsEvent(ctx));
 
             this.bot.action(/.*/, async (ctx) => this.actionRouter(ctx));
-            // this.bot.hears(/.*/, async (ctx) => {
-            //     if (!ctx.message!.reply_to_message) return;
-            //     const reply = (ctx.message!.reply_to_message! as any).text as string;
-            //     const msg = ctx.message?.text as string;
-            //     if (reply.includes("ссылку на лутбокс")) return this.subscribeToLootbox(ctx, msg, reply);
-            //     console.log("ctx.msg", ctx.message?.text);
-
-            //     await ctx.reply(`Hello`);
-            // });
-            // this.bot.on("callback_query", async (ctx) => {
-            //     // Using context shortcut
-            //     await ctx.answerCbQuery("kek");
-            // });
-
-            // this.bot.on("inline_query", async (ctx) => {
-
-            //     // Using context shortcut
-            //     await ctx.answerInlineQuery("result");
-            // });
 
             this.bot.launch();
             console.log("Bot started");
