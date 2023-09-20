@@ -4,6 +4,7 @@ import { notifyPeriod } from "../const";
 
 export interface IUser extends Document {
     id: number;
+    username: string;
     balance: number;
     //вступить в телеграм канал
     //вступить в телеграм чат
@@ -14,7 +15,7 @@ export interface IUser extends Document {
     isJoinToChannel: boolean;
     isJoinToChat: boolean;
     isSubscribeToTwitter: boolean;
-    isRetweetToTwitter: boolean;
+    // isRetweetToTwitter: boolean;
     isSubscribeToMedium: boolean;
     isSubscribeToYoutube: boolean;
     agreement: boolean;
@@ -22,12 +23,16 @@ export interface IUser extends Document {
     actionStatus: boolean;
     lastGetBonus: number;
     lastNotification: number;
+    weight: number;
 }
 console.log("notifyPeriod:", notifyPeriod);
 console.log("nt:", Date.now() / 1000 - notifyPeriod - 10);
 const UserSchema = new Schema({
     id: {
         type: Number,
+    },
+    username: {
+        type: String,
     },
     lastNotification: {
         type: Number,
@@ -65,10 +70,10 @@ const UserSchema = new Schema({
         type: Boolean,
         default: false,
     },
-    isRetweetToTwitter: {
-        type: Boolean,
-        default: false,
-    },
+    // isRetweetToTwitter: {
+    //     type: Boolean,
+    //     default: false,
+    // },
     isSubscribeToMedium: {
         type: Boolean,
         default: false,
@@ -76,6 +81,10 @@ const UserSchema = new Schema({
     isSubscribeToYoutube: {
         type: Boolean,
         default: false,
+    },
+    weight: {
+        type: Number,
+        default: 0,
     },
 });
 const User = model<IUser>("user", UserSchema);

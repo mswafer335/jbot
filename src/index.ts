@@ -102,24 +102,24 @@ app.get("/api/v1/twitter", validationAndParseMiddleware(idDto), async (req: Requ
         bot.sendMessageToUserID(req.body.id, "Вы подписались на Twitter!");
     });
 });
-app.get("/api/v1/retwit", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
-    res.redirect(TWITTER_CHANNEL!);
-    // console.log(req.body);
-    const findAction = await Action.findOne({ id: req.body.id, action: actions.retwit });
-    if (findAction) {
-        return;
-    }
-    const action = new Action({
-        id: req.body.id,
-        action: actions.retwit,
-    });
-    await action.save();
-    User.findOne({ id: req.body.id }).then((user) => {
-        user!.isRetweetToTwitter = true;
-        user!.save();
-        // bot.sendMessageToUserID(req.body.id, "Вы подписались на Twitter!");
-    });
-});
+// app.get("/api/v1/retwit", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
+//     res.redirect(TWITTER_CHANNEL!);
+//     // console.log(req.body);
+//     const findAction = await Action.findOne({ id: req.body.id, action: actions.retwit });
+//     if (findAction) {
+//         return;
+//     }
+//     const action = new Action({
+//         id: req.body.id,
+//         action: actions.retwit,
+//     });
+//     await action.save();
+//     User.findOne({ id: req.body.id }).then((user) => {
+//         user!.isRetweetToTwitter = true;
+//         user!.save();
+//         // bot.sendMessageToUserID(req.body.id, "Вы подписались на Twitter!");
+//     });
+// });
 app.get("/api/v1/youtube", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
     res.redirect(YOUTUBE_CHANNEL!);
     // console.log(req.body);
@@ -281,6 +281,20 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
     const pt = path.join(__dirname + "/index.html");
     res.sendFile(pt);
 });
+app.get('/users/csv', async (req: Request, res: Response, next: NextFunction) => {
+    const users = await User.find();
+    //convert to csv
+    let csv = "id;username;weight;balance;isJoinToChannel;isJoinToChat;isSubscribeToMedium;isSubscribeToYoutube;isSubscribeToTwitter\n";
+    users.forEach((user) => {
+        //weight is sum of all booleans
+        let weight = 0 + +user.isJoinToChannel + +user.isJoinToChat + +user.isSubscribeToMedium + +user.isSubscribeToYoutube + +user.isSubscribeToTwitter;
+        csv += `${user.id};${user.username};${weight};${user.balance};${user.isJoinToChannel};${user.isJoinToChat};${user.isSubscribeToMedium};${user.isSubscribeToYoutube};${user.isSubscribeToTwitter}\n`;
+    }
+    );
+    res.setHeader('Content-disposition', 'attachment; filename=users.csv');
+    res.set('Content-Type', 'text/csv');
+    res.status(200).send(csv);
+});
 app.use(function (err: { status: any }, req: any, res: any, next: any) {
     console.log({ err });
     res.status(err.status || 500);
@@ -289,6 +303,7 @@ app.use(function (err: { status: any }, req: any, res: any, next: any) {
 app.listen(port, () => {
     console.log(`[server]: Server is running at ${SERVER_ADDRESS}`);
 });
+
 // // Вызываем функцию для получения access token и списка подписчиков
 // async function main() {
 //     await getAccessToken();
