@@ -88,7 +88,7 @@ export class TgBot {
         runner.start();
     }
     async getReplyKeyboard(userId) {
-        const user = await getOrCreateUser(userId);
+        const user = await getOrCreateUser({id:userId});
         const sId = user.id.toString();
         const markup = Extra.HTML().markup((m) =>
             m.inlineKeyboard(
@@ -323,13 +323,13 @@ export class TgBot {
             //generate handlers action for check_sub
             this.bot.action("check_sub_to_channel", async (ctx) => {
                 console.log(ctx.update.callback_query);
-                const findAction = await Action.findOne({ id: this.getSenderId(ctx), action: actions.tg_channel });
+                const findAction = await Action.findOne({ id: (this.getSenderId(ctx)).id, action: actions.tg_channel });
 
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isJoinToChannel) {
                     if (!findAction) {
                         const action = new Action({
-                            id: this.getSenderId(ctx),
+                            id: (this.getSenderId(ctx)).id,
                             action: actions.tg_channel,
                         });
                         await action.save();
@@ -346,7 +346,7 @@ export class TgBot {
                 if (checkApi) {
                     if (!findAction) {
                         const action = new Action({
-                            id: this.getSenderId(ctx),
+                            id: (this.getSenderId(ctx)).id,
                             action: actions.tg_channel,
                         });
                         await action.save();
@@ -367,12 +367,12 @@ export class TgBot {
                 return await ctx.reply(`вы еще не подписаны на телеграм канал`, markup);
             });
             this.bot.action("check_sub_to_chat", async (ctx) => {
-                const findAction = await Action.findOne({ id: this.getSenderId(ctx), action: actions.tg_chat });
+                const findAction = await Action.findOne({ id: (this.getSenderId(ctx)).id, action: actions.tg_chat });
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isJoinToChat) {
                     if (!findAction) {
                         const action = new Action({
-                            id: this.getSenderId(ctx),
+                            id: (this.getSenderId(ctx)).id,
                             action: actions.tg_chat,
                         });
                         await action.save();
@@ -383,7 +383,7 @@ export class TgBot {
                 if (checkApi) {
                     if (!findAction) {
                         const action = new Action({
-                            id: this.getSenderId(ctx),
+                            id: (this.getSenderId(ctx)).id,
                             action: actions.tg_chat,
                         });
                         await action.save();
@@ -404,12 +404,12 @@ export class TgBot {
                 return await ctx.reply(`вы еще не подписаны на телеграм чат`, markup);
             });
             this.bot.action("check_sub_to_twitter", async (ctx) => {
-                const findAction = await Action.findOne({ id: this.getSenderId(ctx), action: actions.twitter_channel });
+                const findAction = await Action.findOne({ id: (this.getSenderId(ctx)).id, action: actions.twitter_channel });
                 const user = await getOrCreateUser(this.getSenderId(ctx));
                 if (user.isSubscribeToTwitter) {
                     if (!findAction) {
                         const action = new Action({
-                            id: this.getSenderId(ctx),
+                            id: (this.getSenderId(ctx)).id,
                             action: actions.tg_chat,
                         });
                         await action.save();
