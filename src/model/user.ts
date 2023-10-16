@@ -24,6 +24,7 @@ export interface IUser extends Document {
     lastGetBonus: number;
     lastNotification: number;
     weight: number;
+    blocked: boolean;
 }
 console.log("notifyPeriod:", notifyPeriod);
 console.log("nt:", Date.now() / 1000 - notifyPeriod - 10);
@@ -85,6 +86,10 @@ const UserSchema = new Schema({
     weight: {
         type: Number,
         default: 0,
+    },
+    blocked: {
+        type: Boolean,
+        default: false,
     },
 });
 const User = model<IUser>("user", UserSchema);

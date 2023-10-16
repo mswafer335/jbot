@@ -66,185 +66,11 @@ export enum actions {
     tg_chat = "tg_chat",
     retwit = "retwit",
 }
-app.get("/api/v1/medium", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
-    res.redirect(MEDI_CHANNEL!);
-    // console.log(req.body);
-    const findAction = await Action.findOne({ id: req.body.id, action: actions.medium });
-    if (findAction) {
-        return;
-    }
-    const action = new Action({
-        id: req.body.id,
-        action: actions.medium,
-    });
-    await action.save();
-    User.findOne({ id: req.body.id }).then(async (user) => {
-        user!.isSubscribeToMedium = true;
-        await user!.save();
-        bot.sendMessageToUserID(req.body.id, "Вы подписались на Medium!");
-    });
-});
-app.get("/api/v1/twitter", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
-    res.redirect(TWITTER_CHANNEL!);
-    // console.log(req.body);
-    const findAction = await Action.findOne({ id: req.body.id, action: actions.twitter_channel });
-    if (findAction) {
-        return;
-    }
-    const action = new Action({
-        id: req.body.id,
-        action: actions.twitter_channel,
-    });
-    await action.save();
-    User.findOne({ id: req.body.id }).then((user) => {
-        user!.isSubscribeToTwitter = true;
-        user!.save();
-        bot.sendMessageToUserID(req.body.id, "Вы подписались на Twitter!");
-    });
-});
-// app.get("/api/v1/retwit", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
-//     res.redirect(TWITTER_CHANNEL!);
-//     // console.log(req.body);
-//     const findAction = await Action.findOne({ id: req.body.id, action: actions.retwit });
-//     if (findAction) {
-//         return;
-//     }
-//     const action = new Action({
-//         id: req.body.id,
-//         action: actions.retwit,
-//     });
-//     await action.save();
-//     User.findOne({ id: req.body.id }).then((user) => {
-//         user!.isRetweetToTwitter = true;
-//         user!.save();
-//         // bot.sendMessageToUserID(req.body.id, "Вы подписались на Twitter!");
-//     });
-// });
-app.get("/api/v1/youtube", validationAndParseMiddleware(idDto), async (req: Request, res: Response, next: NextFunction) => {
-    res.redirect(YOUTUBE_CHANNEL!);
-    // console.log(req.body);
-    const findAction = await Action.findOne({ id: req.body.id, action: actions.youtube_channel });
-    if (findAction) {
-        return;
-    }
-    const action = new Action({
-        id: req.body.id,
-        action: actions.youtube_channel,
-    });
-    await action.save();
-    User.findOne({ id: req.body.id }).then((user) => {
-        user!.isSubscribeToYoutube = true;
-        user!.save();
-        bot.sendMessageToUserID(req.body.id, "Вы подписались на YouTube!");
-    });
-});
+
 app.get("/api/v1/status", (req: Request, res: Response, next: NextFunction) => {
     res.status(200).send({ status: "ok" });
 });
 
-app.post("/api/v1/request_tokens", async (req: Request, res: Response, next: NextFunction) => {
-    //get userid from query params
-    // const userid = parseInt(req.query.userid as string);
-    // if (isNaN(userid)) {
-    //     res.status(400).send({ status: "error", message: "userid is required, or userid broken" });
-    //     return;
-    // }
-    const tokens = await axiosRequestToken();
-    //  console.log(tokens);
-    res.status(200).send({ status: "ok", tokens: tokens });
-});
-
-// app.get("/api/v1/twitter/user_subcribtions", async (req: Request, res: Response, next: NextFunction) => {
-// 		const
-
-// })
-app.get("/api/v1/twitter/check_subcribtions", async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.query.token as string;
-    const token_secret = req.query.token_secret as string;
-    const name = req.query.name as string;
-    const tid = req.query.tid as string;
-    if (!token || !token_secret || !name || !tid) {
-        res.status(400).send({ status: "error", message: "token or token_secret or name or tid is required" });
-        return;
-    }
-    const check = await axiosCheckSubcribe(token, token_secret, name, TWITTER_CHANNEL_USERNAME);
-    //  console.log("check:", check);
-    const tgid = decodeTGID(tid);
-    await alarmTwitter(parseInt(tgid));
-    res.status(200).send({ status: "ok", check: check });
-});
-app.get("/api/v1/twitter/channel_address", async (req: Request, res: Response, next: NextFunction) => {
-    res.status(200).send({ status: "ok", link: TWITTER_CHANNEL });
-});
-async function alarmTwitter(tgid: number) {
-    const user = await User.findOne({ id: tgid });
-    if (!user) {
-        return;
-    }
-    const findAction = await Action.findOne({ id: tgid, action: actions.twitter_channel });
-    if (findAction) {
-        return;
-    }
-    const action = new Action({
-        id: tgid,
-        action: actions.twitter_channel,
-    });
-    await action.save();
-    User.findOne({ id: tgid }).then((user) => {
-        user!.isSubscribeToTwitter = true;
-        user!.save();
-        bot.sendMessageToUserID(tgid, "Вы подписались на Twitter!");
-    });
-}
-app.post("/api/v1/access_tokens", async (req: Request, res: Response, next: NextFunction) => {
-    //get userid from query params
-    // const userid = parseInt(req.query.userid as string);
-    // if (isNaN(userid)) {
-    //     res.status(400).send({ status: "error", message: "userid is required, or userid broken" });
-    //     return;
-    // }
-    const oauth_token = req.query.oauth_token as string;
-    const oauth_verifier = req.query.oauth_verifier as string;
-    const tid = req.query.tid as string;
-    if (!oauth_token || !oauth_verifier || !tid) {
-        res.status(400).send({ status: "error", message: "oauth_token or oauth_verifier or id is required" });
-        return;
-    }
-    const tokens: any = await axiosRequestAccessToken(oauth_token, oauth_verifier);
-    console.log("axiosRequestAccessToken> tokens:", tokens);
-    if (!tokens) {
-        res.status(400).send({ status: "error", message: "access_token or access_token_secret is required" });
-        return;
-    }
-
-    const userName = tokens?.screen_name;
-    console.log("axiosRequestAccessToken> userName:", userName);
-    //use twitter api for get subscriptions user
-    // const userSubs = await axiosGetUserSubscriptions(tokens.oauth_token, tokens.oauth_token_secret);
-    //console.log("axiosGetUserSubscriptions> userSubs:", userSubs);
-    // return res.status(200).send({
-    //     status: "ok",
-    // });
-    const isSub = await axiosCheckSubcribe(tokens.oauth_token, tokens.oauth_token_secret, userName, TWITTER_CHANNEL_USERNAME);
-    console.log("axiosCheckSubcribe> isSub:", isSub);
-    if (isNull(isSub)) {
-        //return error broken token
-        res.status(400).send({ status: "error", message: "api broken check sub" });
-        return;
-    }
-    if (isSub) {
-        const tgid = decodeTGID(tid);
-        await alarmTwitter(parseInt(tgid));
-    }
-    res.status(200).send({
-        status: "ok",
-        isSub: isSub,
-        id: tokens.user_id,
-        userName: userName,
-        oauth_token: tokens.oauth_token,
-        oauth_token_secret: tokens.oauth_token_secret,
-    });
-});
 app.get("/u/:id", async (req: Request, res: Response, next: NextFunction) => {
     const id = req.params.id;
     const tgid = decodeTGID(id);
@@ -277,18 +103,20 @@ app.get("/u/:id", async (req: Request, res: Response, next: NextFunction) => {
     const pt = path.join(__dirname + "/user.html");
     res.sendFile(pt);
 });
+
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
     const pt = path.join(__dirname + "/index.html");
     res.sendFile(pt);
 });
+
 app.get('/users/csv', async (req: Request, res: Response, next: NextFunction) => {
     const users = await User.find();
     //convert to csv
-    let csv = "id;username;weight;balance;isJoinToChannel;isJoinToChat;isSubscribeToMedium;isSubscribeToYoutube;isSubscribeToTwitter\n";
+    let csv = "id;username;weight;balance\n";
     users.forEach((user) => {
         //weight is sum of all booleans
         let weight = 0 + +user.isJoinToChannel + +user.isJoinToChat + +user.isSubscribeToMedium + +user.isSubscribeToYoutube + +user.isSubscribeToTwitter;
-        csv += `${user.id};${user.username};${weight};${user.balance};${user.isJoinToChannel};${user.isJoinToChat};${user.isSubscribeToMedium};${user.isSubscribeToYoutube};${user.isSubscribeToTwitter}\n`;
+        csv += `${user.id};${user.username};${weight};${user.balance}\n`;
     }
     );
     res.setHeader('Content-disposition', 'attachment; filename=users.csv');
@@ -303,11 +131,3 @@ app.use(function (err: { status: any }, req: any, res: any, next: any) {
 app.listen(port, () => {
     console.log(`[server]: Server is running at ${SERVER_ADDRESS}`);
 });
-
-// // Вызываем функцию для получения access token и списка подписчиков
-// async function main() {
-//     await getAccessToken();
-//     await getSubscribers();
-// }
-
-// main();
